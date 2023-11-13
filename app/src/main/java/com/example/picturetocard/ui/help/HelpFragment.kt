@@ -31,7 +31,7 @@ class HelpFragment() : Fragment() {
         val gridView: GridView = binding.gridView
 
         // Remplacez "data" par votre liste de données pour le tableau
-        val data : Array<Array<Int>> = gameViewModel.matrice.matrice// Votre liste de données
+        val data : Array<Array<String>> = gameViewModel.matrice.getValuesWithHeader()// Votre liste de données
 
         // Calculez le nombre de colonnes en fonction de la taille de la liste de données
         val numColumns = data[0].size
@@ -43,9 +43,7 @@ class HelpFragment() : Fragment() {
         gridView.numColumns = numColumns
         gridView.layoutParams.height = gridView.columnWidth * numRows
 
-        val gridViewAdapter = GridViewAdapter(data.map { row ->
-            row.map { it.toString() }.toTypedArray()
-        }.toTypedArray(), requireContext())
+        val gridViewAdapter = GridViewAdapter(data, requireContext(), 12f)
 
         // Défini l'adaptateur pour la gridView
         gridView.adapter = gridViewAdapter

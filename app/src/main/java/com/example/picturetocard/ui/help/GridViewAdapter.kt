@@ -1,11 +1,13 @@
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.GridView
 import android.widget.TextView
 
-class GridViewAdapter(private val data: Array<Array<String>>, private val context: Context) :
+class GridViewAdapter(private val data: Array<Array<String>>, private val context: Context, private val textSize: Float) :
     BaseAdapter() {
 
     override fun getCount(): Int {
@@ -29,6 +31,7 @@ class GridViewAdapter(private val data: Array<Array<String>>, private val contex
         val col = position % data[0].size
 
         textView.text = data[row][col]
+        textView.textSize = textSize
         textView.gravity = Gravity.CENTER // Centrer le texte dans la case
 
         return textView

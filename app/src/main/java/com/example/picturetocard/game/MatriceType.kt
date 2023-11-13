@@ -57,6 +57,32 @@ class MatriceType(
         return matrice[index1][index2]
     }
 
+    fun getValuesWithHeader(): Array<Array<String>> {
+        val colors = Colors.values()
+
+        // Créer un tableau avec une taille augmentée pour inclure la première ligne et la première colonne
+        val valuesWithHeader = Array(matrice.size + 1) { Array(matrice[0].size + 1) { "" } }
+
+        // Remplir la première ligne avec les énumérations de couleurs
+        for (col in 0 until matrice[0].size) {
+            valuesWithHeader[0][col + 1] = colors[col].name
+        }
+
+        // Remplir la première colonne avec les énumérations de couleurs
+        for (row in matrice.indices) {
+            valuesWithHeader[row + 1][0] = colors[row].name
+        }
+
+        // Copier les données existantes dans le tableau avec en-tête
+        for (row in matrice.indices) {
+            for (col in 0 until matrice[0].size) {
+                valuesWithHeader[row + 1][col + 1] = matrice[row][col].toString()
+            }
+        }
+
+        return valuesWithHeader
+    }
+
     fun printMatrix() {
         val colors = Colors.values()
         val headerRow = colors.joinToString("\t", "\t", "\n") { it.name.take(3) }
