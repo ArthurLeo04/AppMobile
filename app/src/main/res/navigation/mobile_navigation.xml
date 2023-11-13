@@ -6,12 +6,6 @@
     app:startDestination="@+id/navigation_menu">
 
     <fragment
-        android:id="@+id/navigation_menu"
-        android:name="com.example.picturetocard.ui.menu.MenuFragment"
-        android:label="Menu"
-        tools:layout="@layout/fragment_menu" />
-
-    <fragment
         android:id="@+id/navigation_photo"
         android:name="com.example.picturetocard.ui.photo.PhotoFragment"
         android:label="Photo"
@@ -22,6 +16,12 @@
         android:name="com.example.picturetocard.ui.modification.ModificationFragment"
         android:label="Modification"
         tools:layout="@layout/fragment_modification" />
+
+    <fragment
+        android:id="@+id/navigation_menu"
+        android:name="com.example.picturetocard.ui.menu.MenuFragment"
+        android:label="Menu"
+        tools:layout="@layout/fragment_menu" />
 
     <fragment
         android:id="@+id/navigation_collection"
