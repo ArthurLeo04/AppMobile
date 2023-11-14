@@ -9,6 +9,7 @@
         android:id="@+id/fond"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:alpha="1"
         android:background="#2A7D85"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="h,2:3"

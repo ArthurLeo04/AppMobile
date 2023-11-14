@@ -42,9 +42,9 @@
         android:id="@+id/pileDisplay"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="64dp"
+        android:layout_marginStart="128dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="64dp"
+        android:layout_marginEnd="128dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/res1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,7 +60,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="2dp"
         android:layout_marginBottom="16dp"
-        android:background="#FF0000"
+        android:background="#000000"
         app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toStartOf="@+id/carte2"
         app:layout_constraintHorizontal_bias="0.5"
@@ -74,7 +74,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="2dp"
-        android:background="#FF0000"
+        android:background="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/carte1"
         app:layout_constraintEnd_toStartOf="@+id/carte3"
         app:layout_constraintHorizontal_bias="0.5"
@@ -89,7 +89,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="2dp"
-        android:background="#FF0000"
+        android:background="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/carte2"
         app:layout_constraintEnd_toStartOf="@+id/carte4"
         app:layout_constraintHorizontal_bias="0.5"
@@ -104,7 +104,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="2dp"
-        android:background="#FF0000"
+        android:background="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/carte3"
         app:layout_constraintEnd_toStartOf="@+id/carte5"
         app:layout_constraintHorizontal_bias="0.5"
@@ -119,7 +119,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="2dp"
-        android:background="#FF0000"
+        android:background="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/carte4"
         app:layout_constraintEnd_toStartOf="@+id/carte6"
         app:layout_constraintHorizontal_bias="0.5"
@@ -134,7 +134,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="8dp"
-        android:background="#FF0000"
+        android:background="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/carte5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -147,72 +147,66 @@
         android:id="@+id/res1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res3"
         app:layout_constraintEnd_toEndOf="@+id/carte1"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/carte1"
-        app:layout_constraintTop_toTopOf="@+id/res3"
-        app:layout_constraintVertical_bias="0.5" />
-
-    <TextView
-        android:id="@+id/res3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/defaultScore"
-        app:layout_constraintBottom_toBottomOf="@+id/res2"
-        app:layout_constraintEnd_toEndOf="@+id/carte2"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/carte2"
-        app:layout_constraintTop_toTopOf="@+id/res2"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/res3" />
 
     <TextView
         android:id="@+id/res2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#F4F6AB"
+        android:text="@string/defaultScore"
+        app:layout_constraintBottom_toBottomOf="@+id/res3"
+        app:layout_constraintEnd_toEndOf="@+id/carte2"
+        app:layout_constraintStart_toStartOf="@+id/carte2"
+        app:layout_constraintTop_toTopOf="@+id/res3" />
+
+    <TextView
+        android:id="@+id/res3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res4"
         app:layout_constraintEnd_toEndOf="@+id/carte3"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/carte3"
-        app:layout_constraintTop_toTopOf="@+id/res4"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/res4" />
 
     <TextView
         android:id="@+id/res4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res5"
         app:layout_constraintEnd_toEndOf="@+id/carte4"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/carte4"
-        app:layout_constraintTop_toTopOf="@+id/res5"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/res5" />
 
     <TextView
         android:id="@+id/res5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res6"
         app:layout_constraintEnd_toEndOf="@+id/carte5"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/carte5"
-        app:layout_constraintTop_toTopOf="@+id/res6"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/res6" />
 
     <TextView
         android:id="@+id/res6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toTopOf="@+id/carte6"
         app:layout_constraintEnd_toEndOf="@+id/carte6"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/carte6" />
 
 
