@@ -4,4 +4,11 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="power_up">POWER UP</string>
+    <string name="abondon">Abandonner</string>
+    <string name="imageCarte">Image carte</string>
+    <string name="imageEffet">Image effet</string>
+    <string name="imageColor">Image couleur</string>
+    <string name="defaultScore">0</string>
+    <string name="tableDescr">Table des types</string>
+    <string name="helpButtonDescr">Description bouton Aide</string>
 </resources>

@@ -57,6 +57,20 @@ class MatriceType(
         return matrice[index1][index2]
     }
 
+    fun getStringValues() : Array<Array<String>> {
+        // Créer un tableau avec une taille augmentée pour inclure la première ligne et la première colonne
+        val values = Array(matrice.size) { Array(matrice[0].size) { "" } }
+
+        // Copier les données existantes dans le tableau avec en-tête
+        for (row in matrice.indices) {
+            for (col in 0 until matrice[0].size) {
+                values[row][col] = matrice[row][col].toString()
+            }
+        }
+
+        return values
+    }
+
     fun getValuesWithHeader(): Array<Array<String>> {
         val colors = Colors.values()
 

@@ -7,4 +7,13 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="red">#E80505</color>
+    <color name="feu">#F41717</color>
+    <color name="eau">#1E8C9F</color>
+    <color name="nature">#20BF1A</color>
+    <color name="roche">#832F0E</color>
+    <color name="metal">#656565</color>
+    <color name="air">#A307B5</color>
+    <color name="foudre">#FDC90A</color>
+    <color name="glace">#E3D9D9</color>
 </resources>
