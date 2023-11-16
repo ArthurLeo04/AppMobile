@@ -15,7 +15,8 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import com.example.picturetocard.PictureToCard
+import com.example.picturetocard.R
 import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.GameManager
 
@@ -229,8 +230,8 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun refreshWhosPlayingView() {
-        val animatorAppear = AnimatorInflater.loadAnimator(this, R.animator.appear ) as AnimatorSet
-        val animatorDisappear = AnimatorInflater.loadAnimator(this, R.animator.disapear ) as AnimatorSet
+        val animatorAppear = AnimatorInflater.loadAnimator(this, R.animator.appear) as AnimatorSet
+        val animatorDisappear = AnimatorInflater.loadAnimator(this, R.animator.disapear) as AnimatorSet
 
         if (gameManager.getCanPlay()) {
             animatorDisappear.setTarget(viewOpponentPlaying)
@@ -247,10 +248,10 @@ class GameActivity : AppCompatActivity() {
 
     fun animPlay(playerPlay : Boolean) {
         val animator = if (playerPlay) {
-            AnimatorInflater.loadAnimator(this, R.animator.player_play ) as AnimatorSet
+            AnimatorInflater.loadAnimator(this, R.animator.player_play) as AnimatorSet
         }
         else {
-            AnimatorInflater.loadAnimator(this, R.animator.opponent_play ) as AnimatorSet
+            AnimatorInflater.loadAnimator(this, R.animator.opponent_play) as AnimatorSet
         }
 
         val view = findViewById<View>(R.id.viewForAnim)

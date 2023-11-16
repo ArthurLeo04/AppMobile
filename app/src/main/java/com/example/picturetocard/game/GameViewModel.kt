@@ -1,6 +1,5 @@
 package com.example.picturetocard.game
 
-import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import com.example.picturetocard.GameActivity

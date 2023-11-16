@@ -1,7 +1,6 @@
 package com.example.picturetocard.ui.game
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.picturetocard.GameActivity
-import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
 import com.example.picturetocard.game.GameManager
 import com.example.picturetocard.game.getIdFromColor
