@@ -25,8 +25,11 @@ class PlayerHandAdapter(private val data: GameManager, private val context: Cont
 
     private fun getResult(position: Int) : Int {
         val carte = data.cards.getCard(data.handPlayer.cards[position])
+        if (data.lastPlay == null) {
+            return 1
+        }
         if (carte != null) {
-            data.matrice.getResult(carte.color, data.lastPlay.color)
+            data.matrice.getResult(carte.color, data.lastPlay!!.color)
         }
         return 0
     }

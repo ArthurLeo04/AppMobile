@@ -4,27 +4,25 @@ import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import com.example.picturetocard.GameActivity
+import java.util.Random
 
 class GameManager(
-
+    val matrice : MatriceType
 ) {
     var handPlayer : Hand
     lateinit var handOppo : Hand
     public lateinit var gameActivity : GameActivity
-    public var canPlay = true
+    private var canPlay = true
 
     val cards : CardList = CardList()
 
-    lateinit var lastPlay : Card
+    var lastPlay : Card? = null
 
     var score : Int = 0
-
-    var matrice = MatriceType.createDefault()
 
     init {
         val carte1 = Card(Colors.ROCHE, Effets.PLUS_UN)
         cards.addCard(carte1)
-        lastPlay = carte1
 
         val carte2 = Card(Colors.EAU, Effets.FEU)
         cards.addCard(carte2)
@@ -43,25 +41,44 @@ class GameManager(
 
         handPlayer = Hand(arrayOf(carte1.id,carte2.id,carte3.id,carte4.id,carte5.id,carte6.id))
         handOppo = Hand(arrayOf(carte1.id,carte2.id,carte3.id,carte4.id,carte5.id,carte6.id))
+
+        // Choisi qui est le premier joueur
+        val random = Random()
+        canPlay = random.nextBoolean()
     }
 
     fun playerPlayCard(id : Int) {
+        setCanPlay(false)
+        gameActivity.refreshAll()
+
         // Player clicked on a card
         val cardIndex = handPlayer.play(id)
         if (cardIndex != 0) { // La carte peut être joué !
             val cardPlayed = cards.getCard(cardIndex)!!
 
             // Incrémentation du score
-            score += matrice.getResult(cardPlayed.color, lastPlay.color)
+            score += if (lastPlay != null) {
+                matrice.getResult(cardPlayed.color, lastPlay!!.color)
+            } else {
+                1
+            }
 
             // Changement de la carte à l'affiche
             lastPlay = cardPlayed
 
             // Mise à jour de l'affichage
-            gameActivity.refreshAll()
+            gameActivity.refreshPlayerHand()
         }
 
+        gameActivity.animPlay(true)
+        gameActivity.lifecycleScope.launch {
+            delay(1000)
 
+            // Mise à jour de l'affichage
+            gameActivity.refreshAll()
+            // On fait jouer l'adversaire
+            opponentChoosePlay()
+        }
     }
 
     fun opponentPlayCard(id :Int) {
@@ -71,38 +88,68 @@ class GameManager(
             val cardPlayed = cards.getCard(cardIndex)!!
 
             // Décrémenter le score
-            score -= matrice.getResult(cardPlayed.color, lastPlay.color)
+            score -= if (lastPlay != null) {
+                matrice.getResult(cardPlayed.color, lastPlay!!.color)
+            } else {
+                1
+            }
 
             // Changement de la carte à l'affiche
             lastPlay = cardPlayed
 
+
+        }
+
+
+
+        gameActivity.animPlay(false)
+        gameActivity.lifecycleScope.launch {
+            delay(1000)
+
+            // On fait jouer l'adversaire
+            setCanPlay(true)
+
             // Mise à jour de l'affichage
             gameActivity.refreshAll()
 
-            canPlay = true
         }
+
     }
 
     fun opponentChoosePlay() {
-        gameActivity.lifecycleScope.launch {
-            delay(2000)
-            var maxScore = Int.MIN_VALUE
-            var bestCardId = -1
 
-            for (cardId in handOppo.cards) {
-                val card = cards.getCard(cardId)
-                if (card != null) {
-                    val score = matrice.getResult(card.color, lastPlay.color)
+        var maxScore = Int.MIN_VALUE
+        var bestCardId = -1
 
-                    if (score > maxScore) {
-                        maxScore = score
-                        bestCardId = cardId
-                    }
+        for (cardPos in 0..<handOppo.cards.size) {
+            val card = cards.getCard(handOppo.cards[cardPos])
+            if (card != null && !handOppo.isUse[cardPos]) {
+                val score = if (lastPlay != null) {
+                    matrice.getResult(card.color, lastPlay!!.color)
+                }
+                else {
+                    1
+                }
+
+                if (score > maxScore) {
+                    maxScore = score
+                    bestCardId = handOppo.cards[cardPos]
                 }
             }
+        }
 
+        gameActivity.lifecycleScope.launch {
+            delay(2000)
             opponentPlayCard(bestCardId)
         }
 
     }
+
+    fun setCanPlay(bool : Boolean) {
+        canPlay = bool
+        gameActivity.refreshWhosPlayingView()
+    }
+
+    fun getCanPlay() : Boolean {return canPlay}
+
 }

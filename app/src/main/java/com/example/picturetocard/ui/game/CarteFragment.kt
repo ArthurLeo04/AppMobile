@@ -49,11 +49,9 @@ class CarteFragment : Fragment() {
         // Recherche du gameManager
         val gameActivity = activity as? GameActivity
         if (gameActivity != null) {
-            val myApp = gameActivity.application as? PictureToCard
-            if (myApp != null) {
-                gameManager = myApp.gameManager
-                // Utilisez gameViewModel dans votre fragment
-            }
+            gameManager = gameActivity.gameManager
+            // Utilisez gameViewModel dans votre fragment
+
         }
 
         cardId?.let {
@@ -64,14 +62,14 @@ class CarteFragment : Fragment() {
             effetView.setImageResource(getIdFromEffet(card.effet))
             fond.setBackgroundColor(ContextCompat.getColor(requireContext(),
                 getStyleFromColor(card.color)))
+            fond.alpha = cardAlpha
+
             // TODO Ajouter l'image
 
             if (canClick == true) {
                 fond.setOnClickListener {
-                    if (gameManager.canPlay) {
+                    if (gameManager.getCanPlay()) {
                         gameManager.playerPlayCard(cardId)
-                        gameManager.canPlay = false
-                        gameManager.opponentChoosePlay()
                     }
 
                 }
@@ -83,6 +81,8 @@ class CarteFragment : Fragment() {
 
     public fun setAlpha(n_alpha: Float) {
         cardAlpha = n_alpha
-        fond.alpha = cardAlpha
+        if (::fond.isInitialized) {
+            fond.alpha = cardAlpha
+        }
     }
 }

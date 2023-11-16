@@ -3,9 +3,10 @@ package com.example.picturetocard.game
 import android.util.Log
 
 class Hand(
-    public val cards: Array<Int>,
+    val cards: Array<Int>,
 ) {
-    public var isUse: Array<Boolean> = Array(cards.size) { false }
+    val isUse: Array<Boolean> = Array(cards.size) { false }
+    val isVisible: Array<Boolean> = Array(cards.size) { false }
 
     public fun print() {
         val tag = "Print"
@@ -19,6 +20,7 @@ class Hand(
                     return 0
                 }
                 isUse[i] = true
+                isVisible[i] = true
                 return cards[i]
             }
         }

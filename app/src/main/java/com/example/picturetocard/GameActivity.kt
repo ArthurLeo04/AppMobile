@@ -1,5 +1,8 @@
 package com.example.picturetocard
 
+import android.animation.Animator
+import android.animation.AnimatorInflater
+import android.animation.AnimatorSet
 import com.example.picturetocard.ui.game.CarteFragment
 import android.graphics.Typeface
 import android.os.Bundle
@@ -8,11 +11,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.GameManager
 
@@ -24,18 +27,18 @@ class GameActivity : AppCompatActivity() {
     private val tableCardOppo = Array<CarteFragment?>(6) { null }
     private lateinit var helpButton: ImageButton
     private lateinit var pileDisplay: CarteFragment
-    private lateinit var gameManager: GameManager
+    private lateinit var viewPlayerPlaying: View
+    private lateinit var viewOpponentPlaying: View
+    lateinit var gameManager: GameManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
         // Récupérer le gameManager
         val app = application as PictureToCard
-        gameManager = app.gameManager
+        gameManager = GameManager(app.ruleManager.matrice)
         gameManager.gameActivity = this
 
-        ///// GESTION DE LA PILE //////
-        pileDisplay = setCardFrame(gameManager.lastPlay.id, R.id.pileDisplay, false)
 
         ///// GESTION DE LA MAIN DU JOUEUR //////
 
@@ -56,16 +59,43 @@ class GameActivity : AppCompatActivity() {
             res.setTypeface(null, Typeface.BOLD)
         }
 
+        viewPlayerPlaying = findViewById(R.id.viewPlayerPlaying)
+
         ///// Gestion du score /////
         scoreView = findViewById(R.id.scoreView)
         scoreView.textSize = 40f
         scoreView.setTypeface(null, Typeface.BOLD)
 
+        ///// Gestion de la main de l'adv /////
+
+        for (i in 1..6) {
+            // Ajout des cartes du joueur
+            val resourceId = resources.getIdentifier("carteOpo$i", "id", packageName)
+            tableCardOppo[i - 1] = setCardFrame(gameManager.handOppo.cards[i-1], resourceId,
+                needClick = true,
+                isVisible = false
+            )
+        }
+
+        viewOpponentPlaying = findViewById(R.id.viewOpoPlaying)
+
+        // Commence le jeu
+
+        if (!gameManager.getCanPlay()) {
+            gameManager.opponentChoosePlay() // Il faut que l'adversaire choisisse une carte de base
+        }
+
+        refreshWhosPlayingView()
     }
 
     private fun getFormatedRes(indice : Int) : String {
         val card : Card = gameManager.cards.getCard(gameManager.handPlayer.cards[indice])!!
-        val result = gameManager.matrice.getResult(card.color, gameManager.lastPlay.color)
+        val result = if (gameManager.lastPlay != null) {
+            gameManager.matrice.getResult(card.color, gameManager.lastPlay!!.color)
+        }
+        else {
+            +1
+        }
         return getStringWithPlus(result)
     }
 
@@ -78,9 +108,28 @@ class GameActivity : AppCompatActivity() {
         return formattedResult
     }
 
-    private fun setCardFrame(cardId : Int, frameId: Int, needClick : Boolean) : CarteFragment {
+
+    private fun setPileDisplay() {
+        if (gameManager.lastPlay != null) {
+
+            pileDisplay = setCardFrame(gameManager.lastPlay!!.id, R.id.pileDisplay, false)
+
+        }
+    }
+
+
+    private fun getCarteFragment(cardId: Int, needClick: Boolean) : CarteFragment {
+        return CarteFragment.newInstance(cardId, needClick)
+    }
+
+
+    private fun setCardFrame(cardId : Int, frameId: Int, needClick : Boolean, isVisible : Boolean = true) : CarteFragment {
         // Créez une vue personnalisée pour représenter votre carte
-        val carteFragment = CarteFragment.newInstance(cardId, needClick) // Remplacez createCardView par votre logique de création de vue de carte
+        val carteFragment = getCarteFragment(cardId, needClick)// Remplacez createCardView par votre logique de création de vue de carte
+
+        if (!isVisible) {
+            carteFragment.setAlpha(0f)
+        }
 
         // Obtenez le FragmentManager de votre CardFragment
         val fragmentManager = supportFragmentManager
@@ -134,9 +183,10 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun refreshAll() {
-        refreshPlayerHand()
         refreshPile()
+        refreshPlayerHand()
         refreshScore()
+        refreshPlayerOppo()
     }
 
     fun refreshPlayerHand() {
@@ -154,11 +204,81 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    fun refreshPlayerOppo() {
+        var pos = 0
+        for (i in 0..<gameManager.handOppo.cards.size) {
+            // Met à jour l'apparence des cartes du joueur
+            if (!gameManager.handOppo.isVisible[i]) {
+                tableCardOppo[pos]?.setAlpha(0f)
+            }
+            else {
+                if (gameManager.handOppo.isUse[i]) {
+                    tableCardOppo[pos]?.setAlpha(0.5f)
+                }
+            }
+            pos ++
+        }
+    }
+
     fun refreshPile() {
-        pileDisplay = setCardFrame(gameManager.lastPlay.id, R.id.pileDisplay, false)
+        setPileDisplay()
     }
 
     fun refreshScore() {
         scoreView.text = getStringWithPlus(gameManager.score)
+    }
+
+    fun refreshWhosPlayingView() {
+        val animatorAppear = AnimatorInflater.loadAnimator(this, R.animator.appear ) as AnimatorSet
+        val animatorDisappear = AnimatorInflater.loadAnimator(this, R.animator.disapear ) as AnimatorSet
+
+        if (gameManager.getCanPlay()) {
+            animatorDisappear.setTarget(viewOpponentPlaying)
+            animatorAppear.setTarget(viewPlayerPlaying)
+        }
+        else {
+            animatorDisappear.setTarget(viewPlayerPlaying)
+            animatorAppear.setTarget(viewOpponentPlaying)
+        }
+
+        animatorAppear.start()
+        animatorDisappear.start()
+    }
+
+    fun animPlay(playerPlay : Boolean) {
+        val animator = if (playerPlay) {
+            AnimatorInflater.loadAnimator(this, R.animator.player_play ) as AnimatorSet
+        }
+        else {
+            AnimatorInflater.loadAnimator(this, R.animator.opponent_play ) as AnimatorSet
+        }
+
+        val view = findViewById<View>(R.id.viewForAnim)
+
+        //view.setBackgroundColor(ContextCompat.getColor(this, R.color.black))
+
+        view.bringToFront()
+
+        animator.setTarget(view)
+
+        animator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(p0: Animator) {
+            }
+
+            override fun onAnimationEnd(p0: Animator) {
+                refreshPile()
+                view.alpha = 0f
+            }
+
+            override fun onAnimationCancel(p0: Animator) {
+                refreshPile()
+                view.alpha = 0f
+            }
+
+            override fun onAnimationRepeat(p0: Animator) {
+            }
+        })
+
+        animator.start()
     }
 }

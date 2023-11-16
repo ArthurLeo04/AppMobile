@@ -5,6 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <View
+        android:id="@+id/viewForAnim"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0"
+        android:background="#000000"
+        app:layout_constraintBottom_toBottomOf="@+id/pileDisplay"
+        app:layout_constraintDimensionRatio="h,2:3"
+        app:layout_constraintEnd_toEndOf="@+id/pileDisplay"
+        app:layout_constraintStart_toStartOf="@+id/pileDisplay"
+        app:layout_constraintTop_toTopOf="@+id/pileDisplay" />
+
     <Button
         android:id="@+id/button"
         android:layout_width="0dp"
@@ -37,6 +49,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/pileDisplay"
         app:layout_constraintTop_toTopOf="@+id/pileDisplay" />
+
+    <View
+        android:id="@+id/viewPlayerPlaying"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="-8dp"
+        android:layout_marginBottom="-8dp"
+        android:background="#D1CB9B"
+        app:layout_constraintBottom_toBottomOf="@+id/carte1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/res1" />
+
+    <View
+        android:id="@+id/viewOpoPlaying"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="-8dp"
+        android:layout_marginBottom="-8dp"
+        android:background="#D1CB9B"
+        app:layout_constraintBottom_toBottomOf="@+id/carteOpo1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/carteOpo1" />
 
     <FrameLayout
         android:id="@+id/pileDisplay"
@@ -147,7 +183,6 @@
         android:id="@+id/res1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res3"
         app:layout_constraintEnd_toEndOf="@+id/carte1"
@@ -158,7 +193,6 @@
         android:id="@+id/res2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res3"
         app:layout_constraintEnd_toEndOf="@+id/carte2"
@@ -169,7 +203,6 @@
         android:id="@+id/res3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res4"
         app:layout_constraintEnd_toEndOf="@+id/carte3"
@@ -180,7 +213,6 @@
         android:id="@+id/res4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res5"
         app:layout_constraintEnd_toEndOf="@+id/carte4"
@@ -191,7 +223,6 @@
         android:id="@+id/res5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toBottomOf="@+id/res6"
         app:layout_constraintEnd_toEndOf="@+id/carte5"
@@ -203,7 +234,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:background="#F4F6AB"
         android:text="@string/defaultScore"
         app:layout_constraintBottom_toTopOf="@+id/carte6"
         app:layout_constraintEnd_toEndOf="@+id/carte6"
@@ -212,9 +242,12 @@
 
     <FrameLayout
         android:id="@+id/carteOpo1"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="2dp"
+        android:background="#000000"
         app:layout_constraintEnd_toStartOf="@+id/carteOpo2"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -224,8 +257,11 @@
 
     <FrameLayout
         android:id="@+id/carteOpo2"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:background="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/carteOpo1"
         app:layout_constraintEnd_toStartOf="@+id/carteOpo3"
         app:layout_constraintHorizontal_bias="0.5"
@@ -236,8 +272,11 @@
 
     <FrameLayout
         android:id="@+id/carteOpo3"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:background="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/carteOpo2"
         app:layout_constraintEnd_toStartOf="@+id/carteOpo4"
         app:layout_constraintHorizontal_bias="0.5"
@@ -248,7 +287,10 @@
 
     <FrameLayout
         android:id="@+id/carteOpo4"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:background="#000000"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@+id/carteOpo3"
         app:layout_constraintEnd_toStartOf="@+id/carteOpo5"
@@ -260,7 +302,10 @@
 
     <FrameLayout
         android:id="@+id/carteOpo5"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:background="#000000"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@+id/carteOpo4"
         app:layout_constraintEnd_toStartOf="@+id/carteOpo6"
@@ -272,7 +317,10 @@
 
     <FrameLayout
         android:id="@+id/carteOpo6"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="8dp"
+        android:background="#000000"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@+id/carteOpo5"
         app:layout_constraintEnd_toEndOf="parent"

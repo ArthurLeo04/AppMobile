@@ -41,7 +41,7 @@ class MatriceType(
                 arrayOf(+2,+0,-2,-2,+0,+1,+1,-1), // Eau
                 arrayOf(-2,+2,+0,-1,-1,+2,-2,+1), // Nature
                 arrayOf(+0,+2,+1,+0,+0,-2,+2,-2), // Foudre
-                arrayOf(-2,+0,+1,+0,+2,+2,+0,+0), // Glace
+                arrayOf(-2,+0,+1,+0,+0,+2,+0,+0), // Glace
                 arrayOf(+1,-1,-2,+2,-2,+0,-1,+2), // Roche
                 arrayOf(-1,-1,+2,-2,+0,+1,+0,+0), // Metal
                 arrayOf(+1,+1,-1,+2,+0,-2,+0,+0), // Air
