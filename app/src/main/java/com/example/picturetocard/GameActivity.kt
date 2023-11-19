@@ -174,6 +174,7 @@ class GameActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.action_menu -> {
                     // Action 1
+                    //onBackPressed()
                     true
                 }
                 else -> false
