@@ -11,4 +11,5 @@
     <string name="defaultScore">0</string>
     <string name="tableDescr">Table des types</string>
     <string name="helpButtonDescr">Description bouton Aide</string>
+    <string name="powerUp">Up !</string>
 </resources>

@@ -3,6 +3,7 @@ package com.example.picturetocard
 import android.animation.Animator
 import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import com.example.picturetocard.ui.game.CarteFragment
 import android.graphics.Typeface
 import android.os.Bundle
@@ -14,6 +15,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
@@ -21,11 +23,12 @@ import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.GameManager
 
 class GameActivity : AppCompatActivity() {
-    private lateinit var button: Button
+    private lateinit var powerUpButton: Button
     private lateinit var scoreView: TextView
     private val tableRes = Array<TextView?>(6) { null }
     private val tableCardPlayer = Array<CarteFragment?>(6) { null }
     private val tableCardOppo = Array<CarteFragment?>(6) { null }
+    private val tableUp = Array<TextView?>(4) {null}
     private lateinit var helpButton: ImageButton
     private lateinit var pileDisplay: CarteFragment
     private lateinit var viewPlayerPlaying: View
@@ -80,7 +83,26 @@ class GameActivity : AppCompatActivity() {
 
         viewOpponentPlaying = findViewById(R.id.viewOpoPlaying)
 
-        // Commence le jeu
+
+        ///// Gestion du bouton powerUp //////
+
+        powerUpButton = findViewById(R.id.button)
+        powerUpButton.setOnClickListener {
+            gameManager.usePowerUp();
+        }
+
+        // Récupére les textsView Up!
+
+        for (i in 1..4) {
+            // Ajout des cartes du joueur
+            val resourceId = resources.getIdentifier("textUp$i", "id", packageName)
+            tableUp[i - 1] = findViewById(resourceId)
+            tableUp[i-1]?.textSize = 25f
+            tableUp[i-1]?.setTypeface(null, Typeface.BOLD)
+            tableUp[i-1]?.alpha = 0f // Rendre invisibles les Up au début
+        }
+
+        ///// Commence le jeu
 
         if (!gameManager.getCanPlay()) {
             gameManager.opponentChoosePlay() // Il faut que l'adversaire choisisse une carte de base
@@ -90,17 +112,14 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun getFormatedRes(indice : Int) : String {
+        // Retourne le résultat si on joue la carte à l'indice dans la main du joueur
         val card : Card = gameManager.cards.getCard(gameManager.handPlayer.cards[indice])!!
-        val result = if (gameManager.lastPlay != null) {
-            gameManager.matrice.getResult(card.color, gameManager.lastPlay!!.color)
-        }
-        else {
-            +1
-        }
+        val result = gameManager.getResult(card)
         return getStringWithPlus(result)
     }
 
     private fun getStringWithPlus(int : Int) : String {
+        // Retourne un toString mais avec + si la valeur est positive
         val formattedResult = if (int > 0) {
             "+$int"
         } else {
@@ -111,6 +130,7 @@ class GameActivity : AppCompatActivity() {
 
 
     private fun setPileDisplay() {
+        // Fixe la carte au dessus de la pile
         if (gameManager.lastPlay != null) {
 
             pileDisplay = setCardFrame(gameManager.lastPlay!!.id, R.id.pileDisplay, false)
@@ -120,6 +140,7 @@ class GameActivity : AppCompatActivity() {
 
 
     private fun getCarteFragment(cardId: Int, needClick: Boolean) : CarteFragment {
+        // retourne un nouveau fragment de carte
         return CarteFragment.newInstance(cardId, needClick,null)
     }
 
@@ -156,32 +177,28 @@ class GameActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_menu -> {
                 // Ouvrir la pop-up ici
-                showPopupMenu()
+                onBackPressed() // équivalent
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun showPopupMenu() {
-        val contextWrapper = ContextThemeWrapper(this, R.style.PopupMenuStyle)
-        val popupMenu = PopupMenu(contextWrapper, findViewById(R.id.action_menu))
-
-        popupMenu.menuInflater.inflate(R.menu.game_menu, popupMenu.menu)
-
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            // Gérer les clics des éléments du menu contextuel ici
-            when (menuItem.itemId) {
-                R.id.action_menu -> {
-                    // Action 1
-                    //onBackPressed()
-                    true
-                }
-                else -> false
-            }
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Action effectué lors de l'appuie du bouton retour (ou de Abondonner dans le popUpMenu)
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setTitle("Confirmation")
+        alertDialogBuilder.setMessage("Êtes-vous sûr de vouloir abondonner la partie ?")
+        alertDialogBuilder.setPositiveButton("Oui") { dialog, which ->
+            // L'utilisateur a confirmé, fermer l'activité
+            super.onBackPressed()
         }
-
-        popupMenu.show()
+        alertDialogBuilder.setNegativeButton("Non") { dialog, which ->
+            // L'utilisateur a annulé, ne rien faire
+        }
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
     }
 
     fun refreshAll() {
@@ -247,7 +264,12 @@ class GameActivity : AppCompatActivity() {
         animatorDisappear.start()
     }
 
+    fun refreshPowerUp() {
+        powerUpButton.isEnabled = !gameManager.playerUsedPowerUp
+    }
+
     fun animPlay(playerPlay : Boolean) {
+        // Ajoute une animation lorsqu'un joueur joue une carte
         val animator = if (playerPlay) {
             AnimatorInflater.loadAnimator(this, R.animator.player_play) as AnimatorSet
         }
@@ -256,8 +278,6 @@ class GameActivity : AppCompatActivity() {
         }
 
         val view = findViewById<View>(R.id.viewForAnim)
-
-        //view.setBackgroundColor(ContextCompat.getColor(this, R.color.black))
 
         view.bringToFront()
 
@@ -282,5 +302,37 @@ class GameActivity : AppCompatActivity() {
         })
 
         animator.start()
+    }
+
+    fun animUp() {
+        val animatorSet = AnimatorSet()
+        val animators = mutableListOf<Animator>()
+
+        for (text : TextView? in tableUp) {
+            val animator = AnimatorInflater.loadAnimator(this, R.animator.clignote) as Animator
+            animator.setTarget(text)
+
+            animator.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationStart(p0: Animator) {
+                }
+
+                override fun onAnimationEnd(p0: Animator) {
+                    text?.alpha = 0f
+                }
+
+                override fun onAnimationCancel(p0: Animator) {
+                    text?.alpha = 0f
+                }
+
+                override fun onAnimationRepeat(p0: Animator) {
+                }
+            })
+
+            animators.add(animator)
+        }
+
+        animatorSet.playTogether(animators as Collection<Animator>?)
+        animatorSet.start()
+
     }
 }

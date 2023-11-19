@@ -50,11 +50,28 @@ class MatriceType(
         }
     }
 
-    fun getResult(color1 : Colors, color2 : Colors) : Int {
-        // Retourne le résultat en ayant joué color1 sur color2
-        val index1 = color1.ordinal
-        val index2 = color2.ordinal
-        return matrice[index1][index2]
+    fun getResult(color1 : Colors, color2 : Colors, effet : Effets? = null) : Int {
+        if (effet == null) {
+            // Retourne le résultat en ayant joué color1 sur color2
+            val index1 = color1.ordinal
+            val index2 = color2.ordinal
+            return matrice[index1][index2]
+        }
+        else {
+            return when (effet) {
+                Effets.FOUDRE -> getResult(Colors.FOUDRE, color2)
+                Effets.FEU -> getResult(Colors.FEU, color2)
+                Effets.EAU -> getResult(Colors.EAU, color2)
+                Effets.NATURE -> getResult(Colors.NATURE, color2)
+                Effets.GLACE -> getResult(Colors.GLACE, color2)
+                Effets.ROCHE -> getResult(Colors.ROCHE, color2)
+                Effets.METAL -> getResult(Colors.METAL, color2)
+                Effets.AIR -> getResult(Colors.AIR, color2)
+                Effets.PLUS_UN -> 1 + getResult(color1, color2)
+                Effets.DOUBLE_ACT -> getResult(color1, color2)
+            }
+        }
+
     }
 
     fun getStringValues() : Array<Array<String>> {

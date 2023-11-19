@@ -55,9 +55,8 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginTop="-8dp"
-        android:layout_marginBottom="-8dp"
         android:background="#D1CB9B"
-        app:layout_constraintBottom_toBottomOf="@+id/carte1"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/res1" />
@@ -330,5 +329,44 @@
 
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/textUp1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/powerUp"
+        app:layout_constraintBottom_toTopOf="@+id/scoreView"
+        app:layout_constraintEnd_toEndOf="@+id/scoreView"
+        app:layout_constraintStart_toStartOf="@+id/scoreView"
+        app:layout_constraintTop_toBottomOf="@+id/viewOpoPlaying" />
+
+    <TextView
+        android:id="@+id/textUp2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/powerUp"
+        app:layout_constraintBottom_toTopOf="@+id/viewPlayerPlaying"
+        app:layout_constraintEnd_toEndOf="@+id/scoreView"
+        app:layout_constraintStart_toStartOf="@+id/scoreView"
+        app:layout_constraintTop_toBottomOf="@+id/scoreView" />
+
+    <TextView
+        android:id="@+id/textUp3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/powerUp"
+        app:layout_constraintBottom_toTopOf="@+id/scoreView"
+        app:layout_constraintEnd_toEndOf="@+id/helpButton"
+        app:layout_constraintStart_toStartOf="@+id/helpButton"
+        app:layout_constraintTop_toBottomOf="@+id/viewOpoPlaying" />
+
+    <TextView
+        android:id="@+id/textUp4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/powerUp"
+        app:layout_constraintBottom_toTopOf="@+id/viewPlayerPlaying"
+        app:layout_constraintEnd_toEndOf="@+id/helpButton"
+        app:layout_constraintStart_toStartOf="@+id/helpButton"
+        app:layout_constraintTop_toBottomOf="@+id/scoreView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
