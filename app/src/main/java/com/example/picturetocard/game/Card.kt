@@ -2,12 +2,13 @@ package com.example.picturetocard.game
 
 import android.util.Log
 import kotlin.properties.Delegates
+import android.graphics.Bitmap
 
 class Card(
 
     public val color: Colors,
-    public val effet: Effets
-    // TODO : rajouter l'image
+    public val effet: Effets,
+    public val imageBitmap: Bitmap? = null
 ) {
     var id by Delegates.notNull<Int>()
 

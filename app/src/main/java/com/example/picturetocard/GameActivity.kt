@@ -120,7 +120,7 @@ class GameActivity : AppCompatActivity() {
 
 
     private fun getCarteFragment(cardId: Int, needClick: Boolean) : CarteFragment {
-        return CarteFragment.newInstance(cardId, needClick)
+        return CarteFragment.newInstance(cardId, needClick,null)
     }
 
 
