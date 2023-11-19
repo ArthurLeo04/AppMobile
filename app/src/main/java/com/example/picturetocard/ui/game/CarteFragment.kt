@@ -1,5 +1,6 @@
 package com.example.picturetocard.ui.game
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,12 +21,12 @@ class CarteFragment : Fragment() {
     private var cardAlpha: Float = 1f
     private lateinit var fond : ConstraintLayout
     companion object {
-        fun newInstance(cardId: Int, needClickable: Boolean): CarteFragment {
-
+        fun newInstance(cardId: Int, needClickable: Boolean, image: Bitmap?): CarteFragment {
             val fragment = CarteFragment()
             val args = Bundle()
             args.putInt("cardId", cardId)
             args.putBoolean("canClick", needClickable)
+            args.putParcelable("image", image)
             fragment.arguments = args
             return fragment
         }
@@ -37,6 +38,7 @@ class CarteFragment : Fragment() {
 
         val cardId = arguments?.getInt("cardId", 0)
         val canClick = arguments?.getBoolean("canClick", false)
+        val image = arguments?.getParcelable<Bitmap>("image")
 
         // Obtenir les références des ImageView
         val imageView = view.findViewById<ImageView>(R.id.imageView)
@@ -58,6 +60,7 @@ class CarteFragment : Fragment() {
             // Récupére la couleur et l'effet de la carte
             couleurView.setImageResource(getIdFromColor(card.color))
             effetView.setImageResource(getIdFromEffet(card.effet))
+            imageView.setImageBitmap(image)
             fond.setBackgroundColor(ContextCompat.getColor(requireContext(),
                 getStyleFromColor(card.color)))
             fond.alpha = cardAlpha
