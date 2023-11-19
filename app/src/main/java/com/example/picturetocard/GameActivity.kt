@@ -37,7 +37,7 @@ class GameActivity : AppCompatActivity() {
 
         // Récupérer le gameManager
         val app = application as PictureToCard
-        gameManager = GameManager(app.ruleManager.matrice)
+        gameManager = GameManager(app.ruleManager.matrice, app.ruleManager.cards)
         gameManager.gameActivity = this
 
 

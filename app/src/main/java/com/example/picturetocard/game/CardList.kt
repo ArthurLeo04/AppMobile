@@ -13,6 +13,29 @@ class CardList {
         return cards.find { it.id == id }
     }
 
+    fun randomHand() : Hand {
+        val handSize = 6
+        val handCards = mutableListOf<Int>()
+        val randomHand = Hand(Array(handSize){0})
+
+        if (cards.size < handSize) {
+            Log.e("RandomHand", "Not enough cards available")
+            return randomHand
+        }
+
+        while (handCards.size < handSize) {
+            val randomIndex = (0 until cards.size).random()
+            val randomCard = cards[randomIndex]
+
+            if (!handCards.contains(randomCard.id)) {
+                handCards.add(randomCard.id)
+                randomHand.cards[handCards.size - 1] = randomCard.id
+            }
+        }
+
+        return randomHand
+    }
+
     fun printCardIds() {
         val tag = "Print"
         val stringBuilder = StringBuilder("Card IDs: ")

@@ -13,6 +13,7 @@ class Hand(
         Log.d(tag, cards.contentToString())
     }
 
+
     public fun play(id: Int) : Int {
         for (i in cards.indices) {
             if (cards[i] == id) {

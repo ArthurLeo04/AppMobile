@@ -10,16 +10,18 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.picturetocard.GameActivity
+import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
 import com.example.picturetocard.game.GameManager
+import com.example.picturetocard.game.RuleManager
 import com.example.picturetocard.game.getIdFromColor
 import com.example.picturetocard.game.getIdFromEffet
 import com.example.picturetocard.game.getStyleFromColor
 
 class CarteFragment : Fragment() {
-    private lateinit var gameManager: GameManager
     private var cardAlpha: Float = 1f
     private lateinit var fond : ConstraintLayout
+    private lateinit var gameManager : GameManager
     companion object {
         fun newInstance(cardId: Int, needClickable: Boolean, image: Bitmap?): CarteFragment {
             val fragment = CarteFragment()
@@ -46,17 +48,20 @@ class CarteFragment : Fragment() {
         val effetView = view.findViewById<ImageView>(R.id.effetView)
         fond = view.findViewById<ConstraintLayout>(R.id.fond)
 
-        // Recherche du gameManager
-        val gameActivity = activity as? GameActivity
-        if (gameActivity != null) {
-            gameManager = gameActivity.gameManager
-            // Utilisez gameViewModel dans votre fragment
+        // Recherche de l'application pour avoir le ruleManager pour avoir les cartes
+        val application = requireActivity().application as PictureToCard
+        val ruleManager = application.ruleManager
 
+        // On récupére le gameManager si on est dans une GameActivity
+        val activity = requireActivity()
+        if (activity is GameActivity) {
+            // On fixe le gameManager
+            gameManager = activity.gameManager
         }
 
         cardId?.let {
 
-            val card = gameManager.cards.getCard(cardId)!!
+            val card = ruleManager.cards.getCard(cardId)!!
             // Récupére la couleur et l'effet de la carte
             couleurView.setImageResource(getIdFromColor(card.color))
             effetView.setImageResource(getIdFromEffet(card.effet))
@@ -68,11 +73,13 @@ class CarteFragment : Fragment() {
             // TODO Ajouter l'image
 
             if (canClick == true) {
-                fond.setOnClickListener {
-                    if (gameManager.getCanPlay()) {
-                        gameManager.playerPlayCard(cardId)
-                    }
+                if (::gameManager.isInitialized) { // On peut appuyer sur la carte
+                    fond.setOnClickListener {
+                        if (gameManager.getCanPlay()) {
+                            gameManager.playerPlayCard(cardId)
+                        }
 
+                    }
                 }
             }
         }

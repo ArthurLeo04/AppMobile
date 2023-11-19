@@ -6,40 +6,23 @@ import com.example.picturetocard.GameActivity
 import java.util.Random
 
 class GameManager(
-    val matrice : MatriceType
+    val matrice : MatriceType,
+    val cards : CardList
 ) {
     var handPlayer : Hand
     lateinit var handOppo : Hand
     public lateinit var gameActivity : GameActivity
     private var canPlay = true
 
-    val cards : CardList = CardList()
-
     var lastPlay : Card? = null
 
     var score : Int = 0
 
     init {
-        val carte1 = Card(Colors.ROCHE, Effets.PLUS_UN)
-        cards.addCard(carte1)
 
-        val carte2 = Card(Colors.EAU, Effets.FEU)
-        cards.addCard(carte2)
 
-        val carte3 = Card(Colors.METAL, Effets.PLUS_UN)
-        cards.addCard(carte3)
-
-        val carte4 = Card(Colors.ROCHE, Effets.FEU)
-        cards.addCard(carte4)
-
-        val carte5 = Card(Colors.NATURE, Effets.AIR)
-        cards.addCard(carte5)
-
-        val carte6 = Card(Colors.GLACE, Effets.FOUDRE)
-        cards.addCard(carte6)
-
-        handPlayer = Hand(arrayOf(carte1.id,carte2.id,carte3.id,carte4.id,carte5.id,carte6.id))
-        handOppo = Hand(arrayOf(carte1.id,carte2.id,carte3.id,carte4.id,carte5.id,carte6.id))
+        handPlayer = cards.randomHand()
+        handOppo = cards.randomHand()
 
         // Choisi qui est le premier joueur
         val random = Random()
