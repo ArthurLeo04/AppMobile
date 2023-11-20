@@ -7,31 +7,29 @@
     android:layout_height="match_parent"
     tools:context=".ui.photo.PhotoFragment">
 
-    <!-- Ajoutez la vue ImageView pour afficher la photo -->
+    <!-- Ajoutez la vue ImageView pour afficher la carte contenant la photo -->
 
-    <!-- Ajoutez le bouton pour prendre une photo -->
-
-    <ImageView
-        android:id="@+id/img_photo"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:src="@drawable/ic_photo"
+    <FrameLayout
+        android:id="@+id/carte_photo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_photo"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- ajoutez le bouton pour accèder à l'appareil photo-->
 
     <Button
         android:id="@+id/btn_photo"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_marginBottom="40dp"
         android:text="Prendre une photo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_photo" />
+        app:layout_constraintTop_toBottomOf="@+id/carte_photo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
