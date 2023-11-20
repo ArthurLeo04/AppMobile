@@ -76,6 +76,9 @@ class PhotoFragment : Fragment() {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
             prendreUnePhotoLauncher.launch(intent)
         }
+        else {
+            Log.d("Print","Pas d'appareil photo détecté ...")
+        }
     }
 
     private fun afficherCarte(image: Bitmap) {
