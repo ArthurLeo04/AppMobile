@@ -28,11 +28,6 @@ class MenuFragment : Fragment() {
         _binding = FragmentMenuBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textMenu
-        menuViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-
         val buttonPlay : Button = binding.play
 
         buttonPlay.setOnClickListener {
