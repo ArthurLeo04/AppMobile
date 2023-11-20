@@ -7,6 +7,8 @@ class RuleManager {
     // Liste des cartes dans le jeu, à remplacer plus tard par une BD
     val cards : CardList = CardList()
 
+    val BO = 3
+
     init {
         val carte1 = Card(Colors.ROCHE, Effets.PLUS_UN)
         cards.addCard(carte1)
@@ -25,5 +27,17 @@ class RuleManager {
 
         val carte6 = Card(Colors.GLACE, Effets.FOUDRE)
         cards.addCard(carte6)
+
+        val carte7 = Card(Colors.AIR, Effets.FOUDRE)
+        cards.addCard(carte7)
+
+        val carte8 = Card(Colors.FEU, Effets.PLUS_UN)
+        cards.addCard(carte8)
+
+        val carte9 = Card(Colors.NATURE, Effets.PLUS_UN)
+        cards.addCard(carte9)
+
+        val carte10 = Card(Colors.FOUDRE, Effets.GLACE)
+        cards.addCard(carte10)
     }
 }

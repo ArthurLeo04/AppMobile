@@ -12,4 +12,13 @@
     <string name="tableDescr">Table des types</string>
     <string name="helpButtonDescr">Description bouton Aide</string>
     <string name="powerUp">Up !</string>
+    <string name="ok">Ok</string>
+    <string name="endGameMessage">La partie est finie !</string>
+    <string name="winMessage">Gagné !</string>
+    <string name="loseMessage">Perdu…</string>
+    <string name="tieMessage">Égalité</string>
+    <string name="explicationTab">En ligne : attaque\nEn colonne : défense</string>
+    <string name="tablesDesTypes">Tables des types</string>
+    <string name="titreFragmentHelp">Aide</string>
+    <string name="textHelp">Jouez des cartes pour gagner l\'avantage sur votre adversaire.\nLorsqu\'une carte est joué, elle vous fait gagnez un nombre de points correspondants à la résolution du type d\'attaque sur le type de défense (voir table ci-dessous).\nChaque carte a un élément en haut, et un effet en bas.\nUn fois par manche les joueurs peuvent utiliser l\'effet d\'une carte.\nUne fois qu\'un joueur arrive à trois point la manche s\'arrête.\nUne partie se déroule en trois manches.</string>
 </resources>

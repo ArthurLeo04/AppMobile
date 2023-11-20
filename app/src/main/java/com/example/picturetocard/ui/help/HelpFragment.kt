@@ -12,6 +12,7 @@ import com.example.picturetocard.MainActivity
 import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.databinding.FragmentHelpBinding
 import com.example.picturetocard.game.GameManager
+import com.example.picturetocard.ui.game.TableTypeDialog
 
 class HelpFragment() : Fragment() {
 
@@ -28,6 +29,11 @@ class HelpFragment() : Fragment() {
         _binding = FragmentHelpBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+
+        binding.helpButton2.setOnClickListener {
+            val tableTypeDialog = TableTypeDialog(requireContext())
+            tableTypeDialog.show()
+        }
 
         return root
     }

@@ -5,16 +5,16 @@ import android.util.Log
 class Hand(
     val cards: Array<Int>,
 ) {
-    val isUse: Array<Boolean> = Array(cards.size) { false }
+    var isUse: Array<Boolean> = Array(cards.size) { false }
     val isVisible: Array<Boolean> = Array(cards.size) { false }
 
-    public fun print() {
+    fun print() {
         val tag = "Print"
         Log.d(tag, cards.contentToString())
     }
 
 
-    public fun play(id: Int) : Int {
+    fun play(id: Int) : Int {
         for (i in cards.indices) {
             if (cards[i] == id) {
                 if (isUse[i] == true) {
@@ -26,5 +26,16 @@ class Hand(
             }
         }
         return 0
+    }
+
+    fun isEmpty() : Boolean {
+        for (used in isUse) {
+            if (!used) return false
+        }
+        return true
+    }
+
+    fun UnUseCards() {
+        isUse = Array(cards.size) { false }
     }
 }

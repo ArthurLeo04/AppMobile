@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.app.Dialog
 import com.example.picturetocard.ui.game.CarteFragment
 import android.graphics.Typeface
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
@@ -21,10 +23,12 @@ import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
 import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.GameManager
+import com.example.picturetocard.ui.game.TableTypeDialog
 
 class GameActivity : AppCompatActivity() {
     private lateinit var powerUpButton: Button
     private lateinit var scoreView: TextView
+    private lateinit var scoreTextAnim : TextView
     private val tableRes = Array<TextView?>(6) { null }
     private val tableCardPlayer = Array<CarteFragment?>(6) { null }
     private val tableCardOppo = Array<CarteFragment?>(6) { null }
@@ -40,7 +44,7 @@ class GameActivity : AppCompatActivity() {
 
         // Récupérer le gameManager
         val app = application as PictureToCard
-        gameManager = GameManager(app.ruleManager.matrice, app.ruleManager.cards)
+        gameManager = GameManager(app.ruleManager)
         gameManager.gameActivity = this
 
 
@@ -70,6 +74,11 @@ class GameActivity : AppCompatActivity() {
         scoreView.textSize = 40f
         scoreView.setTypeface(null, Typeface.BOLD)
 
+        scoreTextAnim = findViewById(R.id.textScoreAnim)
+        scoreTextAnim.textSize = scoreView.textSize * 0.8f
+        scoreTextAnim.setTypeface(null, Typeface.BOLD)
+        scoreTextAnim.alpha = 0f
+
         ///// Gestion de la main de l'adv /////
 
         for (i in 1..6) {
@@ -83,6 +92,12 @@ class GameActivity : AppCompatActivity() {
 
         viewOpponentPlaying = findViewById(R.id.viewOpoPlaying)
 
+        ///// Gestion du bouton de la table des types /////
+
+        helpButton = findViewById(R.id.helpButton)
+        helpButton.setOnClickListener {
+            showTableType()
+        }
 
         ///// Gestion du bouton powerUp //////
 
@@ -113,7 +128,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun getFormatedRes(indice : Int) : String {
         // Retourne le résultat si on joue la carte à l'indice dans la main du joueur
-        val card : Card = gameManager.cards.getCard(gameManager.handPlayer.cards[indice])!!
+        val card : Card = gameManager.ruleManager.cards.getCard(gameManager.handPlayer.cards[indice])!!
         val result = gameManager.getResult(card)
         return getStringWithPlus(result)
     }
@@ -135,6 +150,10 @@ class GameActivity : AppCompatActivity() {
 
             pileDisplay = setCardFrame(gameManager.lastPlay!!.id, R.id.pileDisplay, false)
 
+        }
+        else {
+            val frameLayout = findViewById<FrameLayout>(R.id.pileDisplay)
+            frameLayout.removeAllViews()
         }
     }
 
@@ -186,6 +205,11 @@ class GameActivity : AppCompatActivity() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        if (gameManager.isEndGame()) {
+            super.onBackPressed()
+            return
+        }
+
         // Action effectué lors de l'appuie du bouton retour (ou de Abondonner dans le popUpMenu)
         val alertDialogBuilder = AlertDialog.Builder(this)
         alertDialogBuilder.setTitle("Confirmation")
@@ -206,6 +230,8 @@ class GameActivity : AppCompatActivity() {
         refreshPlayerHand()
         refreshScore()
         refreshPlayerOppo()
+        refreshWhosPlayingView()
+        refreshPowerUp()
     }
 
     fun refreshPlayerHand() {
@@ -216,7 +242,12 @@ class GameActivity : AppCompatActivity() {
                 tableCardPlayer[pos]?.setAlpha(0.5f)
                 tableRes[pos]?.visibility = View.INVISIBLE
             }
+            else if(!gameManager.getCanPlay()) {
+                tableRes[pos]?.visibility = View.INVISIBLE
+            }
             else {
+                tableCardPlayer[pos]?.setAlpha(1f)
+                tableRes[pos]?.visibility = View.VISIBLE
                 tableRes[pos]?.text = getFormatedRes(pos)
             }
             pos ++
@@ -234,6 +265,9 @@ class GameActivity : AppCompatActivity() {
                 if (gameManager.handOppo.isUse[i]) {
                     tableCardOppo[pos]?.setAlpha(0.5f)
                 }
+                else {
+                    tableCardOppo[pos]?.setAlpha(1f)
+                }
             }
             pos ++
         }
@@ -244,7 +278,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun refreshScore() {
-        scoreView.text = getStringWithPlus(gameManager.score)
+        scoreView.text = getStringWithPlus(gameManager.getScore())
     }
 
     fun refreshWhosPlayingView() {
@@ -334,5 +368,63 @@ class GameActivity : AppCompatActivity() {
         animatorSet.playTogether(animators as Collection<Animator>?)
         animatorSet.start()
 
+    }
+
+    fun animScore(difference : Int) {
+        // Initialisation du texte
+        scoreTextAnim.text = getStringWithPlus(difference)
+
+        // Initialisation de l'animation
+        val animator = AnimatorInflater.loadAnimator(this, R.animator.defile_score) as AnimatorSet
+        animator.setTarget(scoreTextAnim)
+
+        animator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(p0: Animator) {
+            }
+
+            override fun onAnimationEnd(p0: Animator) {
+                scoreTextAnim.alpha = 0f
+            }
+
+            override fun onAnimationCancel(p0: Animator) {
+                scoreTextAnim.alpha = 0f
+            }
+
+            override fun onAnimationRepeat(p0: Animator) {
+            }
+        })
+
+        animator.start()
+    }
+
+    fun showGameFinishedDialog() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.end_game_pop_up)
+        dialog.setCancelable(false) // Empêche le joueur de quitter le menu sans cliquer sur "OK"
+
+        val messageTextView = dialog.findViewById<TextView>(R.id.tvMessage)
+        val boText = dialog.findViewById<TextView>(R.id.progressionMatchText)
+        val okButton = dialog.findViewById<Button>(R.id.btnOK)
+
+        messageTextView.text = this.getString(
+        if (gameManager.getScore() > 0) R.string.winMessage
+        else if (gameManager.getScore() == 0) R.string.tieMessage
+        else R.string.loseMessage)
+
+        boText.text = gameManager.matchWins.toString() + " - " + gameManager.matchLose
+
+        okButton.setOnClickListener {
+            dialog.dismiss() // Ferme le dialogue lorsque le bouton "OK" est cliqué
+            if (gameManager.numeroMatch == gameManager.ruleManager.BO ) onBackPressed() // Retour en arriere
+            else gameManager.resetGame()
+        }
+
+        dialog.show()
+    }
+
+
+    fun showTableType() {
+        val dialog = TableTypeDialog(this)
+        dialog.show()
     }
 }

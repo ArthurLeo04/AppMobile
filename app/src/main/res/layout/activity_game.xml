@@ -39,12 +39,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/pileDisplay" />
 
-    <ImageButton
-        android:id="@+id/helpButton"
+    <TextView
+        android:id="@+id/textScoreAnim"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/defaultScore"
+        app:layout_constraintEnd_toEndOf="@+id/scoreView"
+        app:layout_constraintBottom_toBottomOf="@+id/scoreView"
+        app:layout_constraintStart_toStartOf="@+id/scoreView"
+        app:layout_constraintTop_toTopOf="@+id/scoreView" />
+
+    <ImageButton
+        android:id="@+id/helpButton"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/table"
         android:contentDescription="@string/helpButtonDescr"
-        android:src="@android:drawable/btn_star_big_on"
         app:layout_constraintBottom_toBottomOf="@+id/pileDisplay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/pileDisplay"
@@ -83,8 +93,10 @@
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/res1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/carteOpo1">
+        app:layout_constraintTop_toBottomOf="@+id/carteOpo1"
+        app:layout_constraintVertical_bias="1.0">
 
     </FrameLayout>
 
