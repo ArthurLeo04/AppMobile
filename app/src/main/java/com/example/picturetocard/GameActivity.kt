@@ -5,6 +5,7 @@ import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.Dialog
+import android.content.res.Configuration
 import com.example.picturetocard.ui.game.CarteFragment
 import android.graphics.Typeface
 import android.os.Bundle
@@ -19,6 +20,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
 import com.example.picturetocard.game.Card
@@ -91,6 +93,17 @@ class GameActivity : AppCompatActivity() {
         }
 
         viewOpponentPlaying = findViewById(R.id.viewOpoPlaying)
+
+        //// Gestion des vues de jeu
+
+        val currentMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        if (currentMode == Configuration.UI_MODE_NIGHT_YES) {
+            viewOpponentPlaying.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey))
+            viewPlayerPlaying.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey))
+        } else {
+            viewOpponentPlaying.setBackgroundColor(ContextCompat.getColor(this, R.color.light_grey))
+            viewPlayerPlaying.setBackgroundColor(ContextCompat.getColor(this, R.color.light_grey))
+        }
 
         ///// Gestion du bouton de la table des types /////
 
