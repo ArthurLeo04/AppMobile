@@ -173,7 +173,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun getCarteFragment(cardId: Int, needClick: Boolean) : CarteFragment {
         // retourne un nouveau fragment de carte
-        return CarteFragment.newInstance(cardId, needClick,null)
+        return CarteFragment.newInstance(cardId, needClick,null,"FEU","PLUS_UN")
     }
 
 

@@ -3,12 +3,9 @@ import android.graphics.drawable.Drawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
 import android.widget.BaseAdapter
-import android.widget.GridView
 import android.widget.ImageView
 import android.widget.TextView
-import com.example.picturetocard.R
 import com.example.picturetocard.game.Colors
 import com.example.picturetocard.game.getIdFromColor
 

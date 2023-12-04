@@ -63,4 +63,7 @@ dependencies {
 
     //coil
     implementation("io.coil-kt:coil:1.1.1")
+
+    //Color
+    implementation("androidx.palette:palette-ktx:1.0.0")
 }

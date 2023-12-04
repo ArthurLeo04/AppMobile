@@ -39,3 +39,4 @@ public fun getStyleFromColor(colorEnum: Colors): Int {
         Colors.AIR -> R.color.air
     }
 }
+

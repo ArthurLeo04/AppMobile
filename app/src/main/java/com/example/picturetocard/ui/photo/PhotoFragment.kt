@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
@@ -25,12 +26,18 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.palette.graphics.Palette
 import com.example.picturetocard.R
 import com.example.picturetocard.databinding.FragmentPhotoBinding
 import com.example.picturetocard.ui.game.CarteFragment
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.*
+
+interface ColorExtractionCallback {
+    fun onColorsExtracted(color1: String, color2: String)
+}
 
 class PhotoFragment : Fragment() {
 
@@ -137,16 +144,22 @@ class PhotoFragment : Fragment() {
     }
 
     private fun afficherCarte(image: Bitmap) {
-        val correctedImage = rotateImageIfRequired(image, _photoPath!!)
-        _photoPath = null
-        carteFragment = getCarteFragment(correctedImage)
+        extractColors(image, object : ColorExtractionCallback {
+            override fun onColorsExtracted(color1: String, color2: String) {
+                val correctedImage = rotateImageIfRequired(image, _photoPath!!)
+                Log.d("TAG", "Couleur dominante l143 : $color1")
+                Log.d("TAG", "Couleur secondaire : $color2")
+                _photoPath = null
+                carteFragment = getCarteFragment(correctedImage, color1, color2)
 
-        val fragmentManager = parentFragmentManager
-        val transaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.carte_photo, carteFragment!!)
-        transaction.addToBackStack(null)
-        transaction.setReorderingAllowed(true)
-        transaction.commitAllowingStateLoss()
+                val fragmentManager = parentFragmentManager
+                val transaction = fragmentManager.beginTransaction()
+                transaction.replace(R.id.carte_photo, carteFragment!!)
+                transaction.addToBackStack(null)
+                transaction.setReorderingAllowed(true)
+                transaction.commitAllowingStateLoss()
+            }
+        })
     }
 
     private val prendreUnePhotoGalleryLauncher =
@@ -163,21 +176,26 @@ class PhotoFragment : Fragment() {
             }
         }
 
-    private fun afficherGalleryCarte(image: Bitmap, imagePath: String?) {
-        val correctedImage = if (imagePath != null) {
-            rotateImageIfRequired(image, imagePath)
-        } else {
-            image
-        }
+    private fun afficherGalleryCarte(image: Bitmap, imagePath: String?){
+        extractColors(image, object : ColorExtractionCallback {
+            override fun onColorsExtracted(color1: String, color2: String) {
+                val correctedImage = if (imagePath != null) {
+                    rotateImageIfRequired(image, imagePath)
+                } else {
+                    image
+                }
+                Log.d("TAG", "Couleur dominante l143 : $color1")
+                Log.d("TAG", "Couleur secondaire : $color2")
+                carteFragment = getCarteFragment(correctedImage, color1, color2)
 
-        carteFragment = getCarteFragment(correctedImage)
-
-        val fragmentManager = parentFragmentManager
-        val transaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.carte_photo, carteFragment!!)
-        transaction.addToBackStack(null)
-        transaction.setReorderingAllowed(true)
-        transaction.commitAllowingStateLoss()
+                val fragmentManager = parentFragmentManager
+                val transaction = fragmentManager.beginTransaction()
+                transaction.replace(R.id.carte_photo, carteFragment!!)
+                transaction.addToBackStack(null)
+                transaction.setReorderingAllowed(true)
+                transaction.commitAllowingStateLoss()
+            }
+        })
     }
 
 
@@ -206,9 +224,12 @@ class PhotoFragment : Fragment() {
     }
 
 
-    private fun getCarteFragment(image: Bitmap): CarteFragment {
+    private fun getCarteFragment(image: Bitmap,color1:String,color2:String): CarteFragment {
         // retourne un nouveau fragment de carte avec l'image
-        return CarteFragment.newInstance(1, false, image)
+        if (color1 == color2){
+            return CarteFragment.newInstance(1, false, image,color1,"PLUS_UN")
+        }
+        return CarteFragment.newInstance(1, false, image,color1,color2)
     }
 
     override fun onRequestPermissionsResult(
@@ -243,4 +264,58 @@ class PhotoFragment : Fragment() {
                 dialog.dismiss()
             }.show()
     }
+
+    fun getColorName(rgb: Int): String {
+        val red = Color.red(rgb)
+        val green = Color.green(rgb)
+        val blue = Color.blue(rgb)
+
+        // Associer les plages de valeurs RGB aux couleurs
+        if (red > 200 && green < 100 && blue < 100) {
+            return "FEU"
+        } else if (red < 100 && green > 200 && blue > 200) {
+            return "EAU"
+        } else if (red < 100 && green > 200 && blue < 100) {
+            return "NATURE"
+        } else if (red > 200 && green > 200 && blue < 100) {
+            return "FOUDRE"
+        } else if (red > 200 && green > 200 && blue > 200) {
+            return "GLACE"
+        } else if (red > 100 && green > 50 && blue < 50) {
+            return "ROCHE"
+        } else if (red < 150 && green < 150 && blue < 150) {
+            return "METAL"
+        } else if (red > 150 && green < 100 && blue > 150) {
+            return "AIR"
+        } else {
+            return "EAU" // Aucune des couleurs spécifiées
+        }
+    }
+
+    private fun extractColors(bitmap: Bitmap?, callback: ColorExtractionCallback) {
+        var color1 = "AUTRE"
+        var color2 = "AUTRE"
+        Palette.from(bitmap!!).generate { palette ->
+            // Extraction de la couleur dominante
+            val dominantSwatch = palette?.dominantSwatch
+            val secondDominantSwatch = palette?.swatches?.get(1)
+
+            if (dominantSwatch != null && secondDominantSwatch != null) {
+                val dominantColor = dominantSwatch.rgb
+                val secondDominantColor = secondDominantSwatch.rgb
+
+                color1 = getColorName(dominantColor)
+                color2 = getColorName(secondDominantColor)
+
+                Log.d("TAG", "Couleur dominante : $color1")
+                Log.d("TAG", "Couleur secondaire : $color2")
+
+                // Appel du callback avec les couleurs extraites
+                callback.onColorsExtracted(color1, color2)
+            }
+        }
+        Log.d("TAG", "Couleur dominante l272 : $color1, Couleur secondaire : $color2")
+    }
+
+
 }
