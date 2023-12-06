@@ -9,9 +9,11 @@ import java.util.Random
 class GameManager(
     val ruleManager: RuleManager
 ) {
+    private val cards: MutableList<Card> = mutableListOf() // Stocke les cartes de la partie seulement
+
     // Mains des joueurs
-    var handPlayer : Hand = ruleManager.cards.randomHand()
-    var handOppo : Hand = ruleManager.cards.randomHand()
+    lateinit var handPlayer : Hand
+    lateinit var handOppo : Hand
 
     // POWER UPS
     var playerUsedPowerUp = false
@@ -20,7 +22,7 @@ class GameManager(
     var activePowerUp = false
 
     // L'activité relié au jeu
-    lateinit var gameActivity : GameActivity
+    private lateinit var gameActivity : GameActivity
 
     // Est ce le tour du joueur ?
     private var canPlay = true
@@ -42,6 +44,17 @@ class GameManager(
         val random = Random()
         canPlay = random.nextBoolean()
         firstPlayer = canPlay
+
+        // Rempli la main des joueurs
+
+    }
+
+    fun setGameActivity(gameActivity: GameActivity) {
+        this.gameActivity = gameActivity
+        gameActivity.lifecycleScope.launch {
+            handPlayer = ruleManager.cards.randomHand(gameActivity.gameManager)
+            handOppo = ruleManager.cards.randomHand(gameActivity.gameManager)
+        }
     }
 
     fun getResult(cardPlayed : Card) : Int {
@@ -58,9 +71,9 @@ class GameManager(
         gameActivity.refreshAll()
 
         // Player clicked on a card
-        val cardIndex = handPlayer.play(id)
-        if (cardIndex != 0) { // La carte peut être joué !
-            val cardPlayed = ruleManager.cards.getCard(cardIndex)!!
+
+        if (handPlayer.play(id)) { // La carte peut être joué !
+            val cardPlayed = handPlayer.cards[id]
 
             // Incrémentation du score
             setScore(score + getResult(cardPlayed))
@@ -92,14 +105,13 @@ class GameManager(
 
     private fun opponentPlayCard(id :Int) {
         // Player clicked on a card
-        val cardIndex = handOppo.play(id)
-        if (cardIndex != 0) { // La carte peut être joué !
+        if (handOppo.play(id)) { // La carte peut être joué !
             if (activePowerUp) {
                 oppoUsedPowerUp = true
                 activatePowerUp()
             }
 
-            val cardPlayed = ruleManager.cards.getCard(cardIndex)!!
+            val cardPlayed = handOppo.cards[id]
 
             // Décrémente le score
             setScore(score - getResult(cardPlayed))
@@ -138,8 +150,8 @@ class GameManager(
         var tailleMain = 0
 
         for (cardPos in 0..<handOppo.cards.size) {
-            val card = ruleManager.cards.getCard(handOppo.cards[cardPos])
-            if (card != null && !handOppo.isUse[cardPos]) {
+            val card = handOppo.cards[cardPos]
+            if (!handOppo.isUse[cardPos]) {
                 tailleMain++
                 val scoreWithoutUp = if (lastPlay != null) {
                     ruleManager.matrice.getResult(card.color, lastPlay!!.color)
@@ -156,12 +168,12 @@ class GameManager(
 
                 if (scoreWithoutUp > maxScore) {
                     maxScore = scoreWithoutUp
-                    bestCardId = handOppo.cards[cardPos]
+                    bestCardId = cardPos
                 }
 
                 if (scoreWithUp > maxScoreWithUp) {
                     maxScoreWithUp = scoreWithUp
-                    bestCardIdWithUp = handOppo.cards[cardPos]
+                    bestCardIdWithUp = cardPos
                 }
 
             }
@@ -257,4 +269,20 @@ class GameManager(
         if (!canPlay) {opponentChoosePlay()}
     }
 
+
+    fun AddCard(card : Card) {
+        this.cards.add(card)
+    }
+    fun GetCards(): List<Card> {
+        return this.cards
+    }
+
+    fun GetCardById(int : Int) : Card? {
+        for (card in cards) {
+            if (card.id == int) {
+                return card
+            }
+        }
+        return null
+    }
 }

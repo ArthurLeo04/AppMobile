@@ -47,7 +47,7 @@ class GameActivity : AppCompatActivity() {
         // Récupérer le gameManager
         val app = application as PictureToCard
         gameManager = GameManager(app.ruleManager)
-        gameManager.gameActivity = this
+        gameManager.setGameActivity(this)
 
 
         ///// GESTION DE LA MAIN DU JOUEUR //////
@@ -55,7 +55,9 @@ class GameActivity : AppCompatActivity() {
         for (i in 1..6) {
             // Ajout des cartes du joueur
             val resourceId = resources.getIdentifier("carte$i", "id", packageName)
-            tableCardPlayer[i - 1] = setCardFrame(gameManager.handPlayer.cards[i-1], resourceId, true)
+            tableCardPlayer[i - 1] = setCardFrame(gameManager.handPlayer.cards[i-1], resourceId,
+                needClick = true
+            )
         }
 
         for (i in 1..6) {
@@ -141,7 +143,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun getFormatedRes(indice : Int) : String {
         // Retourne le résultat si on joue la carte à l'indice dans la main du joueur
-        val card : Card = gameManager.ruleManager.cards.getCard(gameManager.handPlayer.cards[indice])!!
+        val card : Card = gameManager.handPlayer.cards[indice]
         val result = gameManager.getResult(card)
         return getStringWithPlus(result)
     }
@@ -161,7 +163,7 @@ class GameActivity : AppCompatActivity() {
         // Fixe la carte au dessus de la pile
         if (gameManager.lastPlay != null) {
 
-            pileDisplay = setCardFrame(gameManager.lastPlay!!.id, R.id.pileDisplay, false)
+            pileDisplay = setCardFrame(gameManager.lastPlay!!, R.id.pileDisplay, false)
 
         }
         else {
@@ -171,15 +173,15 @@ class GameActivity : AppCompatActivity() {
     }
 
 
-    private fun getCarteFragment(cardId: Int, needClick: Boolean) : CarteFragment {
+    private fun getCarteFragment(card: Card, needClick: Boolean) : CarteFragment {
         // retourne un nouveau fragment de carte
-        return CarteFragment.newInstance(cardId, needClick,null)
+        return CarteFragment.newInstance(card.id, needClick,null)
     }
 
 
-    private fun setCardFrame(cardId : Int, frameId: Int, needClick : Boolean, isVisible : Boolean = true) : CarteFragment {
+    private fun setCardFrame(card: Card, frameId: Int, needClick : Boolean, isVisible : Boolean = true) : CarteFragment {
         // Créez une vue personnalisée pour représenter votre carte
-        val carteFragment = getCarteFragment(cardId, needClick)// Remplacez createCardView par votre logique de création de vue de carte
+        val carteFragment = getCarteFragment(card, needClick)// Remplacez createCardView par votre logique de création de vue de carte
 
         if (!isVisible) {
             carteFragment.setAlpha(0f)

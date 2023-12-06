@@ -68,7 +68,7 @@ class MatriceType(
                 Effets.METAL -> getResult(Colors.METAL, color2)
                 Effets.AIR -> getResult(Colors.AIR, color2)
                 Effets.PLUS_UN -> 1 + getResult(color1, color2)
-                Effets.DOUBLE_ACT -> getResult(color1, color2)
+                //Effets.DOUBLE_ACT -> getResult(color1, color2)
             }
         }
 
