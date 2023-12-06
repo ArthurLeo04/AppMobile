@@ -56,10 +56,10 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("androidx.gridlayout:gridlayout:1.0.0")
     implementation("com.caverock:androidsvg:1.4")
-    implementation("androidx.room:room-ktx:2.4.0")
-    implementation("androidx.room:room-runtime:2.4.0")
+    implementation("androidx.room:room-ktx:2.5.0")
+    implementation("androidx.room:room-runtime:2.5.0")
 
-    kapt("androidx.room:room-compiler:2.4.0")
+    kapt("androidx.room:room-compiler:2.5.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

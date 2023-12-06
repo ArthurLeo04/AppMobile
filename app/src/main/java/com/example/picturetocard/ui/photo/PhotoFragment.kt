@@ -227,9 +227,9 @@ class PhotoFragment : Fragment() {
     private fun getCarteFragment(image: Bitmap,color1:String,color2:String): CarteFragment {
         // retourne un nouveau fragment de carte avec l'image
         if (color1 == color2){
-            return CarteFragment.newInstance(1, false, image,color1,"PLUS_UN")
+            return CarteFragment.newInstance(1, false, image)
         }
-        return CarteFragment.newInstance(1, false, image,color1,color2)
+        return CarteFragment.newInstance(1, false, image)
     }
 
     override fun onRequestPermissionsResult(

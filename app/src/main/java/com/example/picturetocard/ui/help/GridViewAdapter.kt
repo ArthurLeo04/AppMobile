@@ -7,7 +7,6 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.picturetocard.game.Colors
-import com.example.picturetocard.game.getIdFromColor
 
 class GridViewAdapter(private val data: Array<Array<String>>, private val context: Context, private val textSize: Float) :
     BaseAdapter() {
@@ -47,7 +46,7 @@ class GridViewAdapter(private val data: Array<Array<String>>, private val contex
         val colorEnum = Colors.values().getOrElse(row + col - 1) { Colors.FEU }
 
 
-        val svgRessourceId = getIdFromColor(colorEnum)
+        val svgRessourceId = Colors.getIdFromColor(colorEnum)
         val myIcon: Drawable? = context.getDrawable(svgRessourceId)
 
         imageView.setImageDrawable(myIcon)
