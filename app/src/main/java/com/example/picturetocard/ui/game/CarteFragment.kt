@@ -16,8 +16,13 @@ import com.example.picturetocard.R
 import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.Colors
 import com.example.picturetocard.game.Effets
+import com.example.picturetocard.game.Colors
+import com.example.picturetocard.game.Effets
 import com.example.picturetocard.game.GameManager
 import kotlinx.coroutines.launch
+import com.example.picturetocard.game.getIdFromColor
+import com.example.picturetocard.game.getIdFromEffet
+import com.example.picturetocard.game.getStyleFromColor
 
 class CarteFragment : Fragment() {
     private var cardAlpha: Float = 1f
@@ -41,9 +46,7 @@ class CarteFragment : Fragment() {
 
         val cardId = arguments?.getInt("cardId", 0)
         val canClick = arguments?.getBoolean("canClick", false)
-
         val image = arguments?.getParcelable<Bitmap>("image")
-
 
         // Obtenir les références des ImageView
         val imageView = view.findViewById<ImageView>(R.id.imageView)
@@ -64,16 +67,16 @@ class CarteFragment : Fragment() {
 
         cardId?.let {
 
-            lifecycleScope.launch {
-                val card = gameManager.GetCardById(cardId)!!
-                // Récupére la couleur et l'effet de la carte
-                couleurView.setImageResource(Colors.getIdFromColor(card.color))
-                effetView.setImageResource(Effets.getIdFromEffet(card.effet))
-                imageView.setImageBitmap(image)
-                fond.setBackgroundColor(ContextCompat.getColor(requireContext(),
-                    Colors.getStyleFromColor(card.color)))
-                fond.alpha = cardAlpha
-            }
+            val card = ruleManager.cards.getCard(cardId)!!
+            // Récupére la couleur et l'effet de la carte
+
+            arguments?.getString("color1")?.let { couleurView.setImageResource(getIdFromColor(Colors.valueOf(it))) }
+            arguments?.getString("color2")?.let { effetView.setImageResource(getIdFromEffet(Effets.valueOf(it))) }
+
+            imageView.setImageBitmap(image)
+            fond.setBackgroundColor(ContextCompat.getColor(requireContext(),
+                arguments?.getString("color1")?.let { getStyleFromColor(Colors.valueOf(it)) }!!))
+            fond.alpha = cardAlpha
 
             // TODO Ajouter l'image
 

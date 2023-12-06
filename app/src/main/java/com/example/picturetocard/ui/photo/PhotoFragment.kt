@@ -1,65 +1,128 @@
 package com.example.picturetocard.ui.photo
 
+import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Matrix
 import android.media.ExifInterface
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.palette.graphics.Palette
 import com.example.picturetocard.R
+import com.example.picturetocard.databinding.FragmentPhotoBinding
 import com.example.picturetocard.ui.game.CarteFragment
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-import android.util.Log
+import java.util.*
 
+interface ColorExtractionCallback {
+    fun onColorsExtracted(color1: String, color2: String)
+}
 
 class PhotoFragment : Fragment() {
 
-    private lateinit var btnPrendrePhoto: Button
+    private lateinit var binding: FragmentPhotoBinding
+    private val CAMERA_REQUEST_CODE = 1
     private var _photoPath: String? = null
     private var carteFragment: CarteFragment? = null
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val root = inflater.inflate(R.layout.fragment_photo, container, false)
-
-        btnPrendrePhoto = root.findViewById(R.id.btn_photo)
-
-        btnPrendrePhoto.setOnClickListener {
-            prendreUnePhoto()
-        }
-
-        return root
-    }
 
     private val prendreUnePhotoLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val options = BitmapFactory.Options()
-                options.inSampleSize = 2 // Redimensionne l'image par un facteur de 2 (ajustez selon vos besoins)
+                options.inSampleSize = 2
                 val image = BitmapFactory.decodeFile(_photoPath, options)
                 Log.d("TAG", "bon on prend la photo")
                 afficherCarte(image)
             }
         }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentPhotoBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-    private fun prendreUnePhoto() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.btnCamera.setOnClickListener {
+            cameraCheckPermission()
+        }
+
+        binding.btnGallery.setOnClickListener {
+            galleryCheckPermission()
+        }
+    }
+
+    private fun cameraCheckPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            camera()
+        } else {
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.CAMERA
+                ),
+                CAMERA_REQUEST_CODE
+            )
+        }
+    }
+
+    private fun galleryCheckPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            gallery()
+        } else {
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ),
+                CAMERA_REQUEST_CODE
+            )
+        }
+    }
+
+    private fun gallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        prendreUnePhotoGalleryLauncher.launch(intent)
+    }
+
+    private fun camera() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             val time = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
@@ -75,40 +138,66 @@ class PhotoFragment : Fragment() {
 
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
             prendreUnePhotoLauncher.launch(intent)
-        }
-        else {
-            Log.d("Print","Pas d'appareil photo détecté ...")
+        } else {
+            Log.d("Print", "Pas d'appareil photo détecté ...")
         }
     }
 
     private fun afficherCarte(image: Bitmap) {
-        // Correct the orientation of the image
-        val correctedImage = rotateImageIfRequired(image, _photoPath!!)
+        extractColors(image, object : ColorExtractionCallback {
+            override fun onColorsExtracted(color1: String, color2: String) {
+                val correctedImage = rotateImageIfRequired(image, _photoPath!!)
+                Log.d("TAG", "Couleur dominante l143 : $color1")
+                Log.d("TAG", "Couleur secondaire : $color2")
+                _photoPath = null
+                carteFragment = getCarteFragment(correctedImage, color1, color2)
 
-        // Réinitialiser le chemin de la photo
-        _photoPath = null
-
-        // Create an instance of CarteFragment with the corrected image
-        carteFragment = getCarteFragment(correctedImage)
-
-        // Get the FragmentManager of your CarteFragment
-        val fragmentManager = parentFragmentManager
-
-        // Start a fragment transaction
-        val transaction = fragmentManager.beginTransaction()
-
-        // Replace the current fragment with the card fragment
-        transaction.replace(R.id.carte_photo, carteFragment!!)
-
-        // Ajouter la transaction à la pile de retour arrière
-        transaction.addToBackStack(null)
-
-        // Utiliser setReorderingAllowed(true) pour assurer une restauration atomique de la pile de retour arrière
-        transaction.setReorderingAllowed(true)
-
-        // Validate the transaction
-        transaction.commitAllowingStateLoss()
+                val fragmentManager = parentFragmentManager
+                val transaction = fragmentManager.beginTransaction()
+                transaction.replace(R.id.carte_photo, carteFragment!!)
+                transaction.addToBackStack(null)
+                transaction.setReorderingAllowed(true)
+                transaction.commitAllowingStateLoss()
+            }
+        })
     }
+
+    private val prendreUnePhotoGalleryLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val imageUri: Uri? = data?.data
+                if (imageUri != null) {
+                    val imageStream = requireContext().contentResolver.openInputStream(imageUri)
+                    val image = BitmapFactory.decodeStream(imageStream)
+                    Log.d("TAG", "bon on prend la photo")
+                    afficherGalleryCarte(image, null)
+                }
+            }
+        }
+
+    private fun afficherGalleryCarte(image: Bitmap, imagePath: String?){
+        extractColors(image, object : ColorExtractionCallback {
+            override fun onColorsExtracted(color1: String, color2: String) {
+                val correctedImage = if (imagePath != null) {
+                    rotateImageIfRequired(image, imagePath)
+                } else {
+                    image
+                }
+                Log.d("TAG", "Couleur dominante l143 : $color1")
+                Log.d("TAG", "Couleur secondaire : $color2")
+                carteFragment = getCarteFragment(correctedImage, color1, color2)
+
+                val fragmentManager = parentFragmentManager
+                val transaction = fragmentManager.beginTransaction()
+                transaction.replace(R.id.carte_photo, carteFragment!!)
+                transaction.addToBackStack(null)
+                transaction.setReorderingAllowed(true)
+                transaction.commitAllowingStateLoss()
+            }
+        })
+    }
+
 
 
     // Function to rotate the image if required based on its orientation
@@ -135,23 +224,98 @@ class PhotoFragment : Fragment() {
     }
 
 
-    private fun getCarteFragment(image: Bitmap): CarteFragment {
+    private fun getCarteFragment(image: Bitmap,color1:String,color2:String): CarteFragment {
         // retourne un nouveau fragment de carte avec l'image
-        return CarteFragment.newInstance(1, false, image)
+        if (color1 == color2){
+            return CarteFragment.newInstance(1, false, image,color1,"PLUS_UN")
+        }
+        return CarteFragment.newInstance(1, false, image,color1,color2)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        // Détruire le fragment CarteFragment s'il existe
-        carteFragment?.let {
-            val fragmentManager = parentFragmentManager
-            val transaction = fragmentManager.beginTransaction()
-            transaction.remove(it)
-            transaction.commit()
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                camera()
+            } else {
+                showRationaleDialogForPermission()
+            }
         }
     }
 
+    private fun showRationaleDialogForPermission() {
+        AlertDialog.Builder(requireContext())
+            .setMessage("It looks like you have turned off permissions required for this feature. It can be enabled under Application Settings")
+            .setPositiveButton("GO TO SETTINGS") { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", requireActivity().packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }.show()
+    }
+
+    fun getColorName(rgb: Int): String {
+        val red = Color.red(rgb)
+        val green = Color.green(rgb)
+        val blue = Color.blue(rgb)
+
+        // Associer les plages de valeurs RGB aux couleurs
+        if (red > 200 && green < 100 && blue < 100) {
+            return "FEU"
+        } else if (red < 100 && green > 200 && blue > 200) {
+            return "EAU"
+        } else if (red < 100 && green > 200 && blue < 100) {
+            return "NATURE"
+        } else if (red > 200 && green > 200 && blue < 100) {
+            return "FOUDRE"
+        } else if (red > 200 && green > 200 && blue > 200) {
+            return "GLACE"
+        } else if (red > 100 && green > 50 && blue < 50) {
+            return "ROCHE"
+        } else if (red < 150 && green < 150 && blue < 150) {
+            return "METAL"
+        } else if (red > 150 && green < 100 && blue > 150) {
+            return "AIR"
+        } else {
+            return "EAU" // Aucune des couleurs spécifiées
+        }
+    }
+
+    private fun extractColors(bitmap: Bitmap?, callback: ColorExtractionCallback) {
+        var color1 = "AUTRE"
+        var color2 = "AUTRE"
+        Palette.from(bitmap!!).generate { palette ->
+            // Extraction de la couleur dominante
+            val dominantSwatch = palette?.dominantSwatch
+            val secondDominantSwatch = palette?.swatches?.get(1)
+
+            if (dominantSwatch != null && secondDominantSwatch != null) {
+                val dominantColor = dominantSwatch.rgb
+                val secondDominantColor = secondDominantSwatch.rgb
+
+                color1 = getColorName(dominantColor)
+                color2 = getColorName(secondDominantColor)
+
+                Log.d("TAG", "Couleur dominante : $color1")
+                Log.d("TAG", "Couleur secondaire : $color2")
+
+                // Appel du callback avec les couleurs extraites
+                callback.onColorsExtracted(color1, color2)
+            }
+        }
+        Log.d("TAG", "Couleur dominante l272 : $color1, Couleur secondaire : $color2")
+    }
+
+
 }
-
-
