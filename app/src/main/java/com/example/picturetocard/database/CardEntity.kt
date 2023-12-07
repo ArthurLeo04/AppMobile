@@ -3,15 +3,23 @@ package com.example.picturetocard.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.picturetocard.game.Card
+import com.example.picturetocard.game.Colors
+import com.example.picturetocard.game.Effets
 
 @Entity(tableName = "cards")
 data class CardEntity (
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 1,
     @ColumnInfo(name = "Couleur")
     var color : Int,
     @ColumnInfo(name = "Effet")
     var effet : Int,
     @ColumnInfo(name = "PathImage")
     var imagePath : String
-)
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
+
+    fun toCard() : Card {
+        return Card(Colors.fromInt(color), Effets.fromInt(effet))
+    }
+}

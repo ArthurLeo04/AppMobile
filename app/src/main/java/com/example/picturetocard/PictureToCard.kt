@@ -8,10 +8,7 @@ import com.example.picturetocard.game.RuleManager
 class PictureToCard : Application() {
 
     lateinit var ruleManager: RuleManager
-    companion object {
-        lateinit var database: CardDatabase
-            private set
-    }
+    lateinit var database: CardDatabase
 
     override fun onCreate() {
         super.onCreate()

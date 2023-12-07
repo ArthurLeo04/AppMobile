@@ -2,8 +2,8 @@ package com.example.picturetocard.game
 
 import android.util.Log
 
-class Hand(
-    val cards: Array<Card>,
+class Hand( // Stocke les positions dans la liste globale
+    val cards: Array<Int>,
 ) {
     var isUse: Array<Boolean> = Array(cards.size) { false }
     val isVisible: Array<Boolean> = Array(cards.size) { false }

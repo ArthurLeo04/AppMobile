@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.Flow
 interface CardDAO {
 
     @Insert
-    fun insert(entity: CardEntity)
+    fun insert(entity: CardEntity) // Attention ! Dois être lancé depuis une coroutine
 
     @Query("SELECT *  FROM cards")
-    fun getAllEntities(): List<CardEntity>
+    fun getAllEntities(): Flow<List<CardEntity>> // Attention ! Dois être lancé depuis une coroutine
 
     @Query("SELECT * FROM cards WHERE id = :entityId")
-    fun getEntityById(entityId: Int): CardEntity?
+    fun getEntityById(entityId: Int): Flow<CardEntity?> // Attention ! Dois être lancé depuis une coroutine
 }

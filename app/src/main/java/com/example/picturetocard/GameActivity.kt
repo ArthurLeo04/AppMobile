@@ -65,7 +65,7 @@ class GameActivity : AppCompatActivity() {
             val resourceId = resources.getIdentifier("res$i", "id", packageName)
             val res : TextView = findViewById(resourceId)
             tableRes[i - 1] = res
-            val formattedResult = getFormatedRes(i-1)
+            val formattedResult = getFormatedRes(gameManager.handPlayer.cards[i-1])
             res.text = formattedResult
             res.textSize = 18f
             res.setTypeface(null, Typeface.BOLD)
@@ -118,6 +118,7 @@ class GameActivity : AppCompatActivity() {
 
         powerUpButton = findViewById(R.id.button)
         powerUpButton.setOnClickListener {
+            // On peut mettre l'affichage de la base de donnée ici :
             gameManager.usePowerUp();
         }
 
@@ -143,7 +144,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun getFormatedRes(indice : Int) : String {
         // Retourne le résultat si on joue la carte à l'indice dans la main du joueur
-        val card : Card = gameManager.handPlayer.cards[indice]
+        val card : Card = gameManager.cards.getCard(indice)
         val result = gameManager.getResult(card)
         return getStringWithPlus(result)
     }
@@ -173,15 +174,15 @@ class GameActivity : AppCompatActivity() {
     }
 
 
-    private fun getCarteFragment(card: Card, needClick: Boolean) : CarteFragment {
+    private fun getCarteFragment(positionCard : Int, needClick: Boolean) : CarteFragment {
         // retourne un nouveau fragment de carte
-        return CarteFragment.newInstance(card.id, needClick,null)
+        return CarteFragment.newInstance(positionCard, needClick,null)
     }
 
 
-    private fun setCardFrame(card: Card, frameId: Int, needClick : Boolean, isVisible : Boolean = true) : CarteFragment {
+    private fun setCardFrame(positionCard: Int, frameId: Int, needClick : Boolean, isVisible : Boolean = true) : CarteFragment {
         // Créez une vue personnalisée pour représenter votre carte
-        val carteFragment = getCarteFragment(card, needClick)// Remplacez createCardView par votre logique de création de vue de carte
+        val carteFragment = getCarteFragment(positionCard, needClick)// Remplacez createCardView par votre logique de création de vue de carte
 
         if (!isVisible) {
             carteFragment.setAlpha(0f)
@@ -263,7 +264,7 @@ class GameActivity : AppCompatActivity() {
             else {
                 tableCardPlayer[pos]?.setAlpha(1f)
                 tableRes[pos]?.visibility = View.VISIBLE
-                tableRes[pos]?.text = getFormatedRes(pos)
+                tableRes[pos]?.text = getFormatedRes(gameManager.handPlayer.cards[pos])
             }
             pos ++
         }

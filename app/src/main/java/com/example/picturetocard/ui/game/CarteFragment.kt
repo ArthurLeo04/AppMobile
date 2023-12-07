@@ -2,6 +2,7 @@ package com.example.picturetocard.ui.game
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,9 @@ import com.example.picturetocard.R
 import com.example.picturetocard.game.Colors
 import com.example.picturetocard.game.Effets
 import com.example.picturetocard.game.GameManager
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class CarteFragment : Fragment() {
     private var cardAlpha: Float = 1f
@@ -58,17 +62,16 @@ class CarteFragment : Fragment() {
             gameManager = activity.gameManager
         }
 
-        cardId?.let {
 
-            val card = ruleManager.cards.getCard(cardId)!!
-            // Récupére la couleur et l'effet de la carte
+        cardId?.let {
+            val card = gameManager.cards.getCard(cardId)
 
             couleurView.setImageResource(Colors.getIdFromColor(card.color))
             effetView.setImageResource(Effets.getIdFromEffet(card.effet))
 
             imageView.setImageBitmap(image)
             fond.setBackgroundColor(ContextCompat.getColor(requireContext(),
-                 Colors.getStyleFromColor(card.color) ))
+                Colors.getStyleFromColor(card.color) ))
             fond.alpha = cardAlpha
 
             // TODO Ajouter l'image
@@ -83,13 +86,13 @@ class CarteFragment : Fragment() {
                     }
                 }
             }
-        }
+         }
 
         return view
     }
 
-    public fun setAlpha(n_alpha: Float) {
-        cardAlpha = n_alpha
+    fun setAlpha(alpha: Float) {
+        cardAlpha = alpha
         if (::fond.isInitialized) {
             fond.alpha = cardAlpha
         }
