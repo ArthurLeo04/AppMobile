@@ -37,7 +37,7 @@ import java.util.Date
 import java.util.*
 
 interface ColorExtractionCallback {
-    fun onColorsExtracted(color1: String, color2: String)
+    fun onColorsExtracted(color1: Colors, color2: Effets)
 }
 
 class PhotoFragment : Fragment() {
@@ -146,7 +146,7 @@ class PhotoFragment : Fragment() {
 
     private fun afficherCarte(image: Bitmap) {
         extractColors(image, object : ColorExtractionCallback {
-            override fun onColorsExtracted(color1: String, color2: String) {
+            override fun onColorsExtracted(color1: Colors, color2: Effets) {
                 val correctedImage = rotateImageIfRequired(image, _photoPath!!)
                 Log.d("TAG", "Couleur dominante l143 : $color1")
                 Log.d("TAG", "Couleur secondaire : $color2")
@@ -179,7 +179,7 @@ class PhotoFragment : Fragment() {
 
     private fun afficherGalleryCarte(image: Bitmap, imagePath: String?){
         extractColors(image, object : ColorExtractionCallback {
-            override fun onColorsExtracted(color1: String, color2: String) {
+            override fun onColorsExtracted(color1: Colors, color2: Effets) {
                 val correctedImage = if (imagePath != null) {
                     rotateImageIfRequired(image, imagePath)
                 } else {
@@ -225,9 +225,9 @@ class PhotoFragment : Fragment() {
     }
 
 
-    private fun getCarteFragment(image: Bitmap, color1: String, color2: String): CarteFragment {
+    private fun getCarteFragment(image: Bitmap, color1: Colors, color2: Effets): CarteFragment {
         // retourne un nouveau fragment de carte avec l'image
-        val card = Card(Colors.FEU, Effets.FEU, image) // Todo : changer ça ...
+        val card = Card(color1, color2, image) // Todo : changer ça ...
         return CarteFragment(card)
     }
 
@@ -265,36 +265,63 @@ class PhotoFragment : Fragment() {
             }.show()
     }
 
-    fun getColorName(rgb: Int): String {
+    fun getColorName(rgb: Int): Colors {
         val red = Color.red(rgb)
         val green = Color.green(rgb)
         val blue = Color.blue(rgb)
 
         // Associer les plages de valeurs RGB aux couleurs
         if (red > 200 && green < 100 && blue < 100) {
-            return "FEU"
+            return Colors.FEU
         } else if (red < 100 && green > 200 && blue > 200) {
-            return "EAU"
+            return Colors.EAU
         } else if (red < 100 && green > 200 && blue < 100) {
-            return "NATURE"
+            return Colors.NATURE
         } else if (red > 200 && green > 200 && blue < 100) {
-            return "FOUDRE"
+            return Colors.FOUDRE
         } else if (red > 200 && green > 200 && blue > 200) {
-            return "GLACE"
+            return Colors.GLACE
         } else if (red > 100 && green > 50 && blue < 50) {
-            return "ROCHE"
+            return Colors.ROCHE
         } else if (red < 150 && green < 150 && blue < 150) {
-            return "METAL"
+            return Colors.METAL
         } else if (red > 150 && green < 100 && blue > 150) {
-            return "AIR"
+            return Colors.AIR
         } else {
-            return "EAU" // Aucune des couleurs spécifiées
+            return Colors.EAU // Aucune des couleurs spécifiées
+        }
+    }
+
+    fun getEffetName(rgb: Int): Effets {
+        val red = Color.red(rgb)
+        val green = Color.green(rgb)
+        val blue = Color.blue(rgb)
+
+        // Associer les plages de valeurs RGB aux couleurs
+        if (red > 200 && green < 100 && blue < 100) {
+            return Effets.FEU
+        } else if (red < 100 && green > 200 && blue > 200) {
+            return Effets.EAU
+        } else if (red < 100 && green > 200 && blue < 100) {
+            return Effets.NATURE
+        } else if (red > 200 && green > 200 && blue < 100) {
+            return Effets.FOUDRE
+        } else if (red > 200 && green > 200 && blue > 200) {
+            return Effets.GLACE
+        } else if (red > 100 && green > 50 && blue < 50) {
+            return Effets.ROCHE
+        } else if (red < 150 && green < 150 && blue < 150) {
+            return Effets.METAL
+        } else if (red > 150 && green < 100 && blue > 150) {
+            return Effets.AIR
+        } else {
+            return Effets.EAU // Aucune des couleurs spécifiées
         }
     }
 
     private fun extractColors(bitmap: Bitmap?, callback: ColorExtractionCallback) {
-        var color1 = "AUTRE"
-        var color2 = "AUTRE"
+        var color1 = Colors.FEU
+        var color2 = Effets.EAU
         Palette.from(bitmap!!).generate { palette ->
             // Extraction de la couleur dominante
             val dominantSwatch = palette?.dominantSwatch
@@ -305,7 +332,7 @@ class PhotoFragment : Fragment() {
                 val secondDominantColor = secondDominantSwatch.rgb
 
                 color1 = getColorName(dominantColor)
-                color2 = getColorName(secondDominantColor)
+                color2 = getEffetName(secondDominantColor)
 
                 Log.d("TAG", "Couleur dominante : $color1")
                 Log.d("TAG", "Couleur secondaire : $color2")
