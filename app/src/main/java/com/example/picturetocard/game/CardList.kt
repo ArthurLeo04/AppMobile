@@ -3,12 +3,7 @@ package com.example.picturetocard.game
 import android.util.Log
 import com.example.picturetocard.database.CardDatabase
 import com.example.picturetocard.database.CardEntity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import com.example.picturetocard.ui.menu.MenuFragment
 
 class CardList( // Liste des cartes dans la partie
 ) {
@@ -36,5 +31,28 @@ class CardList( // Liste des cartes dans la partie
         }
 
         return randomHand
+    }
+
+    suspend fun fillCardsFromDB(database: CardDatabase, deckId: Int, gameManager: GameManager, menuFragment: MenuFragment) {
+        // Va chercher dans la BD les cartes pour la partie, et remplis les mains des joueurs
+        val playerHand = Hand(Array(6){0}) // Rempli la main de cartes null
+
+        // Prend les cartes du deck
+        val cardsDeck : List<CardEntity> = database.dao().getCardsInDeck(deckId)
+
+        for (i : Int in cardsDeck.indices) {
+            if (i > 5) break // A enlever pour plus tard ...
+            addCard(cardsDeck[i].toCard()) // Besoin d'ajouter les images
+            playerHand.cards[i] = cards.size -1
+            Log.d("Print", ""+(cards.size-1))
+            Log.d("Print", ""+playerHand.cards[i])
+        }
+
+        // Set les mains des joueurs
+        gameManager.handPlayer = playerHand
+        gameManager.handOppo = randomHand()
+
+        gameManager.startGame(menuFragment)
+
     }
 }

@@ -1,16 +1,11 @@
 package com.example.picturetocard.game
 
-import android.util.Log
 import android.graphics.Bitmap
+import android.os.Parcelable
+import android.os.Parcel
 
 class Card(
     val color: Colors,
     val effet: Effets,
-    //val positionInList: Int,
     val imageBitmap: Bitmap? = null
-) {
-
-    fun print() {
-        Log.d("Print", "Carte : $color, $color")
-    }
-}
+)

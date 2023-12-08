@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.picturetocard.GameActivity
 import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
+import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.Colors
 import com.example.picturetocard.game.Effets
 import com.example.picturetocard.game.GameManager
@@ -21,74 +22,48 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class CarteFragment : Fragment() {
+class CarteFragment(
+    private val card: Card,
+    private val gameManager: GameManager? = null,
+    private val positionInList: Int? = null
+) : Fragment() {
     private var cardAlpha: Float = 1f
+    private lateinit var view : View
     private lateinit var fond : ConstraintLayout
-    private lateinit var gameManager : GameManager
-    companion object {
-        fun newInstance(indiceCard: Int, needClickable: Boolean, image: Bitmap?): CarteFragment {
-            val fragment = CarteFragment()
-            val args = Bundle()
-            args.putInt("cardId", indiceCard)
-            args.putBoolean("canClick", needClickable)
-            args.putParcelable("image", image)
-            fragment.arguments = args
-            return fragment
-        }
-    }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Gonfler le fichier XML de la carte
-        val view = inflater.inflate(R.layout.card, container, false)
-
-        val cardId = arguments?.getInt("cardId", 0)
-        val canClick = arguments?.getBoolean("canClick", false)
-        val image = arguments?.getParcelable<Bitmap>("image")
+        view = inflater.inflate(R.layout.card, container, false)
 
         // Obtenir les références des ImageView
         val imageView = view.findViewById<ImageView>(R.id.imageView)
         val couleurView = view.findViewById<ImageView>(R.id.couleurView)
         val effetView = view.findViewById<ImageView>(R.id.effetView)
-        fond = view.findViewById<ConstraintLayout>(R.id.fond)
+        fond = view.findViewById(R.id.fond)
 
-        // Recherche de l'application pour avoir le ruleManager pour avoir les cartes
-        val application = requireActivity().application as PictureToCard
-        val ruleManager = application.ruleManager
+        couleurView.setImageResource(Colors.getIdFromColor(card.color))
+        effetView.setImageResource(Effets.getIdFromEffet(card.effet))
 
-        // On récupére le gameManager si on est dans une GameActivity
-        val activity = requireActivity()
-        if (activity is GameActivity) {
-            // On fixe le gameManager
-            gameManager = activity.gameManager
+        imageView.setImageBitmap(card.imageBitmap)
+        fond.setBackgroundColor(ContextCompat.getColor(requireContext(),
+            Colors.getStyleFromColor(card.color) ))
+        fond.alpha = cardAlpha
+
+        addClick()
+
+        return view
+    }
+
+    private fun addClick() {
+        if (gameManager != null) {
+            fond.setOnClickListener {
+                if (gameManager.getCanPlay()) {
+                    gameManager.playerPlayCard(positionInList!!)
+                }
+            }
         }
 
 
-        cardId?.let {
-            val card = gameManager.cards.getCard(cardId)
-
-            couleurView.setImageResource(Colors.getIdFromColor(card.color))
-            effetView.setImageResource(Effets.getIdFromEffet(card.effet))
-
-            imageView.setImageBitmap(image)
-            fond.setBackgroundColor(ContextCompat.getColor(requireContext(),
-                Colors.getStyleFromColor(card.color) ))
-            fond.alpha = cardAlpha
-
-            // TODO Ajouter l'image
-
-            if (canClick == true) {
-                if (::gameManager.isInitialized) { // On peut appuyer sur la carte
-                    fond.setOnClickListener {
-                        if (gameManager.getCanPlay()) {
-                            gameManager.playerPlayCard(cardId)
-                        }
-
-                    }
-                }
-            }
-         }
-
-        return view
     }
 
     fun setAlpha(alpha: Float) {

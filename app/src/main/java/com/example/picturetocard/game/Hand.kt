@@ -31,4 +31,8 @@ class Hand( // Stocke les positions dans la liste globale
     fun UnUseCards() {
         isUse = Array(cards.size) { false }
     }
+
+    fun getByPosition(position: Int): Int {
+        return cards.indexOf(position)
+    }
 }

@@ -39,16 +39,16 @@ class GameActivity : AppCompatActivity() {
     private lateinit var pileDisplay: CarteFragment
     private lateinit var viewPlayerPlaying: View
     private lateinit var viewOpponentPlaying: View
-    lateinit var gameManager: GameManager
+
+    companion object {
+        lateinit var gameManager: GameManager // On a le gameManager comme variable statique vue qu'il n'y a qu'une seule instance d'activité
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
-        // Récupérer le gameManager
-        val app = application as PictureToCard
-        gameManager = GameManager(app.ruleManager)
         gameManager.setGameActivity(this)
-
 
         ///// GESTION DE LA MAIN DU JOUEUR //////
 
@@ -142,6 +142,7 @@ class GameActivity : AppCompatActivity() {
         refreshWhosPlayingView()
     }
 
+
     private fun getFormatedRes(indice : Int) : String {
         // Retourne le résultat si on joue la carte à l'indice dans la main du joueur
         val card : Card = gameManager.cards.getCard(indice)
@@ -176,7 +177,8 @@ class GameActivity : AppCompatActivity() {
 
     private fun getCarteFragment(positionCard : Int, needClick: Boolean) : CarteFragment {
         // retourne un nouveau fragment de carte
-        return CarteFragment.newInstance(positionCard, needClick,null)
+        return if (!needClick) CarteFragment(gameManager.cards.getCard(positionCard))
+        else CarteFragment(gameManager.cards.getCard(positionCard), gameManager, positionCard)
     }
 
 

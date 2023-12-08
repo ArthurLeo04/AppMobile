@@ -4,10 +4,13 @@ import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import com.example.picturetocard.GameActivity
+import com.example.picturetocard.database.CardDatabase
+import com.example.picturetocard.ui.menu.MenuFragment
 import java.util.Random
 
 class GameManager(
-    val ruleManager: RuleManager
+    val ruleManager: RuleManager,
+    val database: CardDatabase
 ) {
     val cards: CardList = CardList() // Stocke les cartes de la partie seulement
 
@@ -45,16 +48,10 @@ class GameManager(
         canPlay = random.nextBoolean()
         firstPlayer = canPlay
 
-        // Rempli la main des joueurs
-
     }
 
     fun setGameActivity(gameActivity: GameActivity) {
         this.gameActivity = gameActivity
-        gameActivity.lifecycleScope.launch {
-            handPlayer = cards.randomHand()
-            handOppo = cards.randomHand()
-        }
     }
 
     fun getResult(cardPlayed : Card) : Int {
@@ -64,7 +61,7 @@ class GameManager(
         } else 1
     }
 
-    fun playerPlayCard(id : Int) {
+    fun playerPlayCard(position : Int) {
         if (isEndGame()) return // On ne peut pas jouer après la fin de la partie
 
         setCanPlay(false)
@@ -72,8 +69,10 @@ class GameManager(
 
         // Player clicked on a card
 
-        if (handPlayer.play(id)) { // La carte peut être joué !
-            val cardPlayed = handPlayer.cards[id]
+        val indice : Int = handPlayer.getByPosition(position)
+
+        if (handPlayer.play(indice)) { // La carte peut être joué !
+            val cardPlayed = handPlayer.cards[indice]
 
             // Incrémentation du score
             setScore(score + getResult(cards.getCard(cardPlayed)))
@@ -267,5 +266,18 @@ class GameManager(
         gameActivity.refreshAll()
 
         if (!canPlay) {opponentChoosePlay()}
+    }
+
+    fun startGame(menuFragment: MenuFragment) {
+        menuFragment.switchToGameActivity()
+    }
+
+    fun prepareStart(menuFragment: MenuFragment) {
+        // Rempli la main des joueurs
+        val gameManager = this
+        GlobalScope.launch {
+            val id = database.dao().getIdFromFirstDeck() // TODO : changer !
+            cards.fillCardsFromDB(database, id, gameManager, menuFragment)
+        }
     }
 }

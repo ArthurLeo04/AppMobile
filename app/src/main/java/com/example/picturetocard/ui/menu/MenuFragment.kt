@@ -10,7 +10,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.picturetocard.GameActivity
+import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.databinding.FragmentMenuBinding
+import com.example.picturetocard.game.GameManager
 
 
 class MenuFragment : Fragment() {
@@ -31,11 +33,19 @@ class MenuFragment : Fragment() {
         val buttonPlay : Button = binding.play
 
         buttonPlay.setOnClickListener {
-            val intent = Intent(requireActivity(), GameActivity::class.java)
-            startActivity(intent)
+            // Récupérer le gameManager
+
+            val app = requireActivity().application as PictureToCard
+            GameActivity.gameManager = GameManager(app.ruleManager, app.database)
+            GameActivity.gameManager.prepareStart(this)
         }
 
         return root
+    }
+
+    fun switchToGameActivity() {
+        val intent = Intent(requireActivity(), GameActivity::class.java)
+        startActivity(intent)
     }
 
     fun animatePlay() {

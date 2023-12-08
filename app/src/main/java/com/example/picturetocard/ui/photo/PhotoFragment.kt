@@ -20,15 +20,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.palette.graphics.Palette
 import com.example.picturetocard.R
 import com.example.picturetocard.databinding.FragmentPhotoBinding
+import com.example.picturetocard.game.Card
+import com.example.picturetocard.game.Colors
+import com.example.picturetocard.game.Effets
 import com.example.picturetocard.ui.game.CarteFragment
 import java.io.File
 import java.text.SimpleDateFormat
@@ -224,14 +225,13 @@ class PhotoFragment : Fragment() {
     }
 
 
-    private fun getCarteFragment(image: Bitmap,color1:String,color2:String): CarteFragment {
+    private fun getCarteFragment(image: Bitmap, color1: String, color2: String): CarteFragment {
         // retourne un nouveau fragment de carte avec l'image
-        if (color1 == color2){
-            return CarteFragment.newInstance(1, false, image)
-        }
-        return CarteFragment.newInstance(1, false, image)
+        val card = Card(Colors.FEU, Effets.FEU, image) // Todo : changer ça ...
+        return CarteFragment(card)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

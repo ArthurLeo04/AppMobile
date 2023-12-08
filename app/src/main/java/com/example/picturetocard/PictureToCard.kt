@@ -3,7 +3,13 @@ package com.example.picturetocard
 import android.app.Application
 import androidx.room.Room
 import com.example.picturetocard.database.CardDatabase
+import com.example.picturetocard.database.CardEntity
+import com.example.picturetocard.game.Deck
 import com.example.picturetocard.game.RuleManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class PictureToCard : Application() {
 
@@ -19,5 +25,9 @@ class PictureToCard : Application() {
 
         // Les règles du jeu
         ruleManager = RuleManager(database)
+
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            Deck.insertTestDeck(database)
+        }
     }
 }
