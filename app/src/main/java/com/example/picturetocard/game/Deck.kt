@@ -19,12 +19,12 @@ class Deck(
             database.dao().deleteAllCardsInDecks()
 
             //Crée 6 cartes
-            database.dao().insertCard(CardEntity(0,1,""))
-            database.dao().insertCard(CardEntity(1,2,""))
-            database.dao().insertCard(CardEntity(2,3,""))
-            database.dao().insertCard(CardEntity(3,4,""))
-            database.dao().insertCard(CardEntity(4,5,""))
-            database.dao().insertCard(CardEntity(5,6,""))
+            database.dao().insertCard(CardEntity(0,6,""))
+            database.dao().insertCard(CardEntity(1,7,""))
+            database.dao().insertCard(CardEntity(2,8,""))
+            database.dao().insertCard(CardEntity(3,9,""))
+            database.dao().insertCard(CardEntity(4,0,""))
+            database.dao().insertCard(CardEntity(5,1,""))
 
             // Crée une instance de deck
             database.dao().insertDeck(DeckEntity("Test"))

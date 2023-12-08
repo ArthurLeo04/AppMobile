@@ -14,9 +14,9 @@ class Hand( // Stocke les positions dans la liste globale
     }
 
 
-    fun play(index: Int) : Boolean {
+    fun play(index: Int, doubleEffet : Boolean) : Boolean {
         if (isUse[index]) return false
-        isUse[index] = true
+        if (!doubleEffet) isUse[index] = true
         isVisible[index] = true
         return true
     }

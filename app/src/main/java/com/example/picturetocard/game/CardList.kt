@@ -53,6 +53,5 @@ class CardList( // Liste des cartes dans la partie
         gameManager.handOppo = randomHand()
 
         gameManager.startGame(menuFragment)
-
     }
 }

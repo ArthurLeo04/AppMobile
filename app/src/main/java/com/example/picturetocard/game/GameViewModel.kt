@@ -40,6 +40,8 @@ class GameManager(
     var matchWins = 0
     var matchLose = 0
 
+    private var progressMatch = 0
+
     var firstPlayer : Boolean = false
 
     init {
@@ -71,7 +73,9 @@ class GameManager(
 
         val indice : Int = handPlayer.getByPosition(position)
 
-        if (handPlayer.play(indice)) { // La carte peut être joué !
+        val effet = cards.getCard(position).effet
+
+        if (handPlayer.play(indice, effet == Effets.DOUBLE_ACT && activePowerUp)) { // La carte peut être joué !
             val cardPlayed = handPlayer.cards[indice]
 
             // Incrémentation du score
@@ -82,29 +86,35 @@ class GameManager(
 
             // Mise à jour de l'affichage
             gameActivity.refreshPlayerHand()
+
+            // On retire le pouvoir
+            activePowerUp = false
+
+            gameActivity.animPlay(true)
+            gameActivity.lifecycleScope.launch {
+                delay(1000)
+
+                // Mise à jour de l'affichage
+                gameActivity.refreshAll()
+                // On fait jouer l'adversaire
+                opponentChoosePlay()
+            }
         }
 
-        // On retire le pouvoir
-        activePowerUp = false
 
-        gameActivity.animPlay(true)
-        gameActivity.lifecycleScope.launch {
-            delay(1000)
-
-            // Mise à jour de l'affichage
-            gameActivity.refreshAll()
-            // On fait jouer l'adversaire
-            opponentChoosePlay()
-        }
     }
 
     fun isEndGame() : Boolean {
-        return (handPlayer.isEmpty() && handOppo.isEmpty()) || score >= scoreToWin || score <= -scoreToWin
+        return (progressMatch >= 12) || score >= scoreToWin || score <= -scoreToWin
     }
 
-    private fun opponentPlayCard(id :Int) {
+    private fun opponentPlayCard(position :Int) {
         // Player clicked on a card
-        if (handOppo.play(id)) { // La carte peut être joué !
+
+        val effet = cards.getCard(position).effet
+        val id : Int = handOppo.getByPosition(position)
+
+        if (handOppo.play(id, effet == Effets.DOUBLE_ACT && activePowerUp)) { // La carte peut être joué !
             if (activePowerUp) {
                 oppoUsedPowerUp = true
                 activatePowerUp()
@@ -194,7 +204,7 @@ class GameManager(
         gameActivity.lifecycleScope.launch {
             if (powerUp) activePowerUp = true
             delay(2000)
-            opponentPlayCard(bestCardId)
+            opponentPlayCard(handOppo.cards[bestCardId])
         }
 
     }
@@ -207,6 +217,7 @@ class GameManager(
 
     fun setCanPlay(bool : Boolean) {
         canPlay = bool
+        progressMatch += 1
         gameActivity.refreshWhosPlayingView()
     }
 

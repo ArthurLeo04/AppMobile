@@ -12,7 +12,7 @@ enum class Effets {
     METAL, // Gris
     AIR, // Mauve
     PLUS_UN, // +1
-    //DOUBLE_ACT // *2
+    DOUBLE_ACT // *2
     ;
 
     companion object {
@@ -34,8 +34,8 @@ enum class Effets {
                 Effets.METAL -> R.drawable.metal
                 Effets.ROCHE -> R.drawable.roche
                 Effets.AIR -> R.drawable.air
-                Effets.PLUS_UN -> R.drawable.plusone // TODO
-                //Effets.DOUBLE_ACT -> R.drawable.copy // TODO
+                Effets.PLUS_UN -> R.drawable.plusone
+                Effets.DOUBLE_ACT -> R.drawable.copy
             }
         }
     }
