@@ -8,6 +8,7 @@ import com.example.picturetocard.game.Deck
 import com.example.picturetocard.game.RuleManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
@@ -25,6 +26,7 @@ class PictureToCard : Application() {
 
         // Les règles du jeu
         ruleManager = RuleManager(database)
+
 
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             Deck.insertTestDeck(database)

@@ -25,6 +25,7 @@ import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
 import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.GameManager
+import com.example.picturetocard.ui.CardFragmentManager
 import com.example.picturetocard.ui.game.TableTypeDialog
 
 class GameActivity : AppCompatActivity() {
@@ -55,8 +56,9 @@ class GameActivity : AppCompatActivity() {
         for (i in 1..6) {
             // Ajout des cartes du joueur
             val resourceId = resources.getIdentifier("carte$i", "id", packageName)
-            tableCardPlayer[i - 1] = setCardFrame(gameManager.handPlayer.cards[i-1], resourceId,
-                needClick = true
+            tableCardPlayer[i - 1] = CardFragmentManager.setCardFrame(supportFragmentManager , resourceId,
+                gameManager.handPlayer.cards[i-1],
+                gameManager
             )
         }
 
@@ -88,8 +90,8 @@ class GameActivity : AppCompatActivity() {
         for (i in 1..6) {
             // Ajout des cartes du joueur
             val resourceId = resources.getIdentifier("carteOpo$i", "id", packageName)
-            tableCardOppo[i - 1] = setCardFrame(gameManager.handOppo.cards[i-1], resourceId,
-                needClick = true,
+            tableCardOppo[i - 1] = CardFragmentManager.setCardFrame(supportFragmentManager, resourceId,
+                gameManager.cards.getCard(gameManager.handOppo.cards[i-1]),
                 isVisible = false
             )
         }
@@ -165,7 +167,8 @@ class GameActivity : AppCompatActivity() {
         // Fixe la carte au dessus de la pile
         if (gameManager.lastPlay != null) {
 
-            pileDisplay = setCardFrame(gameManager.lastPlay!!, R.id.pileDisplay, false)
+            pileDisplay = CardFragmentManager.setCardFrame(supportFragmentManager, R.id.pileDisplay,
+                gameManager.cards.getCard(gameManager.lastPlay!!))
 
         }
         else {
@@ -175,6 +178,7 @@ class GameActivity : AppCompatActivity() {
     }
 
 
+    /*
     private fun getCarteFragment(positionCard : Int, needClick: Boolean) : CarteFragment {
         // retourne un nouveau fragment de carte
         return if (!needClick) CarteFragment(gameManager.cards.getCard(positionCard))
@@ -204,6 +208,7 @@ class GameActivity : AppCompatActivity() {
 
         return carteFragment
     }
+     */
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.game_menu, menu)

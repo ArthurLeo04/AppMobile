@@ -25,6 +25,10 @@ class Deck(
             database.dao().insertCard(CardEntity(3,9,""))
             database.dao().insertCard(CardEntity(4,0,""))
             database.dao().insertCard(CardEntity(5,1,""))
+            //database.dao().insertCard(CardEntity(6,2,""))
+            //database.dao().insertCard(CardEntity(7,3,""))
+            //database.dao().insertCard(CardEntity(0,4,""))
+            //database.dao().insertCard(CardEntity(1,5,""))
 
             // Crée une instance de deck
             database.dao().insertDeck(DeckEntity("Test"))
