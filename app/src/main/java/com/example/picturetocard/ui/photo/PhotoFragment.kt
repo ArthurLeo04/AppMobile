@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -17,6 +18,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,8 +26,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.palette.graphics.Palette
 import com.example.picturetocard.R
+import com.example.picturetocard.database.CardEntity
 import com.example.picturetocard.databinding.FragmentPhotoBinding
 import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.Colors
@@ -35,6 +39,9 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.*
+import com.example.picturetocard.PictureToCard
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 interface ColorExtractionCallback {
     fun onColorsExtracted(color1: Colors, color2: Effets)
@@ -151,14 +158,20 @@ class PhotoFragment : Fragment() {
                 Log.d("TAG", "Couleur dominante l143 : $color1")
                 Log.d("TAG", "Couleur secondaire : $color2")
                 _photoPath = null
-                carteFragment = getCarteFragment(correctedImage, color1, color2)
-
+                carteFragment = if (color1.ordinal == color2.ordinal){
+                    getCarteFragment(correctedImage, color1, Effets.PLUS_UN)
+                } else {
+                    getCarteFragment(correctedImage, color1, color2)
+                }
                 val fragmentManager = parentFragmentManager
                 val transaction = fragmentManager.beginTransaction()
                 transaction.replace(R.id.carte_photo, carteFragment!!)
                 transaction.addToBackStack(null)
                 transaction.setReorderingAllowed(true)
                 transaction.commitAllowingStateLoss()
+
+                showBottomAlertDialog(parentFragmentManager, carteFragment!!, image)
+
             }
         })
     }
@@ -187,14 +200,20 @@ class PhotoFragment : Fragment() {
                 }
                 Log.d("TAG", "Couleur dominante l143 : $color1")
                 Log.d("TAG", "Couleur secondaire : $color2")
-                carteFragment = getCarteFragment(correctedImage, color1, color2)
-
+                carteFragment = if (color1.ordinal == color2.ordinal){
+                    getCarteFragment(correctedImage, color1, Effets.PLUS_UN)
+                } else {
+                    getCarteFragment(correctedImage, color1, color2)
+                }
                 val fragmentManager = parentFragmentManager
                 val transaction = fragmentManager.beginTransaction()
                 transaction.replace(R.id.carte_photo, carteFragment!!)
                 transaction.addToBackStack(null)
                 transaction.setReorderingAllowed(true)
                 transaction.commitAllowingStateLoss()
+
+                showBottomAlertDialog(parentFragmentManager, carteFragment!!,null)
+
             }
         })
     }
@@ -227,7 +246,7 @@ class PhotoFragment : Fragment() {
 
     private fun getCarteFragment(image: Bitmap, color1: Colors, color2: Effets): CarteFragment {
         // retourne un nouveau fragment de carte avec l'image
-        val card = Card(color1, color2, image) // Todo : changer ça ...
+        val card = Card(color1, color2, image)
         return CarteFragment(card)
     }
 
@@ -342,6 +361,91 @@ class PhotoFragment : Fragment() {
             }
         }
         Log.d("TAG", "Couleur dominante l272 : $color1, Couleur secondaire : $color2")
+    }
+
+    fun showBottomAlertDialog(fragmentManager: FragmentManager, carteFragment: CarteFragment, image: Bitmap?) {
+        val builder = AlertDialog.Builder(requireContext(), R.style.BottomAlertDialogTheme)
+        builder.setMessage("Voulez-vous ajouter cette carte à la base de données?")
+            .setPositiveButton("Oui") { _, _ ->
+                GlobalScope.launch {
+                    addToDatabase(carteFragment, image)
+                }
+                clearCardFromFrameLayout(carteFragment)
+            }
+            .setNegativeButton("Non") { dialog, _ ->
+                clearCardFromFrameLayout(carteFragment)
+                dialog.dismiss()
+            }
+        val dialog = builder.create()
+
+        // Ajustez la gravité pour afficher la boîte de dialogue en bas
+        val window = dialog.window
+        val layoutParams = window?.attributes
+        layoutParams?.gravity = Gravity.BOTTOM
+        window?.attributes = layoutParams
+
+        dialog.show()
+    }
+
+
+
+    suspend fun addToDatabase(carteFragment: CarteFragment, image: Bitmap?) {
+        val card = carteFragment.getCard()
+
+        // Save the image to the device
+        val savedImageUri = if (image != null) {
+            saveImageToGallery(image)
+        } else {
+            carteFragment.getCard().imageBitmap
+        }
+
+        // Récupérer l'instance de l'application
+        val application: PictureToCard = requireActivity().application as PictureToCard
+
+        // Maintenant, vous pouvez utiliser l'instance de l'application comme vous le souhaitez
+        // Par exemple, pour accéder à une instance de CardDao si vous avez configuré votre application avec une base de données Room
+        val cardDao = application.database.dao()
+
+        // Ajout de la carte à la base de données avec le chemin de l'image sauvegardée
+        cardDao.insertCard(
+            CardEntity(
+                color = card.color.ordinal,
+                effet = card.effet.ordinal,
+                imagePath = savedImageUri.toString()
+            )
+        )
+
+        val cards = cardDao.getAllEntities()
+        Log.d("TAG", "Cartes dans la BD : ${cards.size}")
+    }
+
+    private fun saveImageToGallery(image: Bitmap): Uri {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "JPEG_$timeStamp.jpg"
+
+        // Use the MediaStore to insert the image into the device's media store
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        }
+
+        val resolver = requireContext().contentResolver
+        val imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+        // Use an OutputStream to write the bitmap data to the content resolver
+        val outputStream = resolver.openOutputStream(imageUri!!)
+        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        outputStream?.close()
+
+        return imageUri
+    }
+
+
+    private fun clearCardFromFrameLayout(carteFragment: CarteFragment) {
+        val fragmentManager = parentFragmentManager
+        val transaction = fragmentManager.beginTransaction()
+        transaction.remove(carteFragment)
+        transaction.commitAllowingStateLoss()
     }
 
 
