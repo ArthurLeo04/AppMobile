@@ -72,4 +72,8 @@ class CarteFragment(
             fond.alpha = cardAlpha
         }
     }
+
+    fun getCard() : Card {
+        return card
+    }
 }
