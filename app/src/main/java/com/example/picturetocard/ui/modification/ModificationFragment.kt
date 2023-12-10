@@ -115,12 +115,14 @@ class ModificationFragment : CollectionManager() {
         // Trier la liste des cartes
         Collections.sort(cards, CardComparator())
 
-        for (i in cards.indices) {
-            if (i < listFragments.size) {
-                listFragments[i].setCard(cards[i].toCard())
-            }
-            else { // On dois créer la vue
-                createFragmentForLayout(deckFrameIds[i], deckId, cards[i])
+        requireActivity().runOnUiThread {
+            for (i in cards.indices) {
+                if (i < listFragments.size) {
+                    listFragments[i].setCard(cards[i].toCard())
+                }
+                else { // On dois créer la vue
+                    createFragmentForLayout(deckFrameIds[i], deckId, cards[i])
+                }
             }
         }
     }

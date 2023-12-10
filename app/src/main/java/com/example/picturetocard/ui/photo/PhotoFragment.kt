@@ -333,6 +333,35 @@ class PhotoFragment : Fragment() {
         }
     }
 
+    fun getColorNameHSV(rgb: Int): Colors {
+        val hsv = FloatArray(3)
+        Color.RGBToHSV(Color.red(rgb), Color.green(rgb), Color.blue(rgb), hsv)
+
+        val hue = hsv[0]
+        val saturation = hsv[1]
+        val value = hsv[2]
+
+        if (saturation < 0.1) {
+            // Metal ou Acier
+            return if (value > 80) {
+                Colors.GLACE
+            } else {
+                Colors.METAL
+            }
+        }
+
+        return when (hue.toInt()) {
+            in 0..10 -> Colors.FEU
+            in 11..35 -> Colors.ROCHE
+            in 36..60 -> Colors.FOUDRE
+            in 61..150 -> Colors.NATURE
+            in 151..250 -> Colors.EAU
+            in 251..350 -> Colors.AIR
+            else -> Colors.FEU
+        }
+
+    }
+
     fun getEffetName(rgb: Int): Effets {
         val red = Color.red(rgb)
         val green = Color.green(rgb)
@@ -360,20 +389,63 @@ class PhotoFragment : Fragment() {
         }
     }
 
+    fun getEffetNameHSV(rgb: Int): Effets {
+        val hsv = FloatArray(3)
+        Color.RGBToHSV(Color.red(rgb), Color.green(rgb), Color.blue(rgb), hsv)
+
+        val hue = hsv[0]
+        val saturation = hsv[1]
+        val value = hsv[2]
+
+        if (saturation < 0.1) {
+            // Metal ou Acier
+            return if (value < 15) {
+                Effets.DOUBLE_ACT // Noir
+            } else if (value > 85) {
+                Effets.GLACE
+            } else {
+                Effets.METAL
+            }
+        }
+
+        return when (hue.toInt()) {
+            in 0..10 -> Effets.FEU
+            in 11..30 -> Effets.ROCHE
+            in 31..70 -> Effets.FOUDRE
+            in 71..150 -> Effets.NATURE
+            in 151..250 -> Effets.EAU
+            in 251..350 -> Effets.AIR
+            else -> Effets.FEU
+        }
+
+    }
+
+
     private fun extractColors(bitmap: Bitmap?, callback: ColorExtractionCallback) {
         var color1 = Colors.FEU
         var color2 = Effets.EAU
-        Palette.from(bitmap!!).generate { palette ->
+        if (bitmap == null) {return}
+
+        val builder = Palette.Builder(bitmap)
+
+        //builder.maximumColorCount(2) // On ne détecte que deux couleurs
+
+        builder.generate { palette ->
+
+
             // Extraction de la couleur dominante
             val dominantSwatch = palette?.dominantSwatch
             val secondDominantSwatch = palette?.swatches?.get(1)
+
+            Log.d("Print", dominantSwatch.toString())
+            Log.d("Print", secondDominantSwatch.toString())
 
             if (dominantSwatch != null && secondDominantSwatch != null) {
                 val dominantColor = dominantSwatch.rgb
                 val secondDominantColor = secondDominantSwatch.rgb
 
-                color1 = getColorName(dominantColor)
-                color2 = getEffetName(secondDominantColor)
+                color1 = getColorNameHSV(dominantColor) //getColorName(dominantColor)
+                color2 = getEffetNameHSV(secondDominantColor) //getEffetName(secondDominantColor)
 
                 Log.d("TAG", "Couleur dominante : $color1")
                 Log.d("TAG", "Couleur secondaire : $color2")
@@ -412,9 +484,6 @@ class PhotoFragment : Fragment() {
 
         dialog.show()
     }
-
-
-
 
 
 

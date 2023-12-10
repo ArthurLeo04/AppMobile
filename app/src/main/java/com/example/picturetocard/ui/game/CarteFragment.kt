@@ -45,6 +45,7 @@ class CarteFragment(
 
     companion object {
         fun setInfosOnView(view : View, card: Card, context : Context, cardAlpha : Float) : ConstraintLayout {
+
             // Obtenir les références des ImageView
             val imageView = view.findViewById<ImageView>(R.id.imageView)
             val couleurView = view.findViewById<ImageView>(R.id.couleurView)

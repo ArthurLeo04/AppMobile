@@ -6,6 +6,7 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import android.os.Parcelable
 import android.os.Parcel
+import android.util.Log
 import java.io.File
 
 class Card(
@@ -19,15 +20,29 @@ class Card(
         if (file.exists()) {
             val options = BitmapFactory.Options()
             options.inPreferredConfig = Bitmap.Config.ARGB_8888
-            var bitmap = BitmapFactory.decodeFile(file.absolutePath, options)
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath, options)
 
             // Rotate the image if required
-            bitmap = rotateImageIfRequired(bitmap, file.absolutePath)
+            //bitmap = rotateImageIfRequired(bitmap, file.absolutePath)
 
-            imageBitmap = bitmap
+            imageBitmap = resizeBitmap(bitmap, 500f)
         }
     }
 
+    fun resizeBitmap(bitmap: Bitmap, targetResolution: Float): Bitmap {
+        val originalWidth = bitmap.width
+        val originalHeight = bitmap.height
+
+        val originalResolution = originalHeight + originalWidth
+        val facteurReduction = targetResolution / originalResolution
+
+        Log.d("Print", "Original : $originalResolution et $facteurReduction")
+
+        val matrix = Matrix()
+        matrix.postScale(facteurReduction, facteurReduction)
+
+        return Bitmap.createBitmap(bitmap, 0, 0, originalWidth, originalHeight, matrix, false)
+    }
 
     // Function to rotate the image if required based on its orientation
     private fun rotateImageIfRequired(img: Bitmap, path: String): Bitmap {

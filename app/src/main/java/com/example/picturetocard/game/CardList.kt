@@ -21,7 +21,8 @@ class CardList( // Liste des cartes dans la partie
         val randomHand = Hand(Array(6){0}) // Rempli la main de cartes null
 
         for (i in 0..5) {
-            val card = Card(Colors.getRandom(), Effets.getRandom()) // Crée une carte au pif
+            val couleur : Colors = Colors.getRandom()
+            val card = Card(couleur, Effets.getRandom(couleur.ordinal)) // Crée une carte au pif
 
             // Ajoute la carte à la base de donnée et à la partie
             addCard(card) // On fixe l'id

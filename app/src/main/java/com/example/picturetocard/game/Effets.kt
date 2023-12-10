@@ -20,8 +20,12 @@ enum class Effets {
             return Effets.values().first { it.ordinal == value }
         }
 
-        fun getRandom() : Effets {
-            return Effets.values().random()
+        fun getRandom(ordinal: Int): Effets {
+            var res : Effets
+            do {
+                res = Effets.values().random()
+            } while (res.ordinal == ordinal)
+            return res
         }
 
         fun getIdFromEffet(effetEnum: Effets): Int {
