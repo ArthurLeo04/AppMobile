@@ -20,6 +20,8 @@ data class CardEntity (
     var id: Int = 0
 
     fun toCard() : Card {
-        return Card(Colors.fromInt(color), Effets.fromInt(effet))
+        val res = Card(Colors.fromInt(color), Effets.fromInt(effet), id = id)
+        if (imagePath.isNotEmpty()) res.setImageBitmap(imagePath) // On ajoute l'image
+        return res
     }
 }

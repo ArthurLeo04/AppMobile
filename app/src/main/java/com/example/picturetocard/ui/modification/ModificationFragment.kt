@@ -8,9 +8,14 @@ import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
+import com.example.picturetocard.database.CardComparator
+import com.example.picturetocard.database.CardDatabase
+import com.example.picturetocard.database.CardEntity
+import com.example.picturetocard.database.CardInDeckEntity
 import com.example.picturetocard.game.Card
 import com.example.picturetocard.game.Colors
 import com.example.picturetocard.game.Effets
@@ -19,66 +24,106 @@ import com.example.picturetocard.ui.CollectionManager
 import com.example.picturetocard.ui.game.CarteFragment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.util.Collections
 
-class ModificationFragment : Fragment() {
+class ModificationFragment : CollectionManager() {
 
-    private val handize = 6 // Remplacez cela par la variable dont vous disposez
+    private val deckFrameIds = intArrayOf(
+        R.id.carte1,
+        R.id.carte2,
+        R.id.carte3,
+        R.id.carte4,
+        R.id.carte5,
+        R.id.carte6
+    )
 
-    private val iconResIds = intArrayOf(
-        R.drawable.air,
-        R.drawable.feu,
-        R.drawable.eau,
-        R.drawable.metal,
-        R.drawable.nature,
-        R.drawable.air
-    ) // Remplacez cela par les identifiants de ressources de vos icônes
+    private lateinit var database : CardDatabase
+    private lateinit var view: View
+    private val listFragments = mutableListOf<CarteFragment>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_modification, container, false)
+    ): View {
+        view = inflater.inflate(R.layout.fragment_modification, container, false)
 
         //// Partie collection
 
-        // Trouver la GridLayout dans le nouveau layout
-        val gridLayout = view.findViewById<GridLayout>(R.id.gridLayout)
-
         // Récupére les cartes
-        val database = (requireActivity().application as PictureToCard).database
+        database = (requireActivity().application as PictureToCard).database
 
+        val modificationFragment = this
         GlobalScope.launch {
-            CollectionManager.fillCollection(database, requireContext(), parentFragmentManager, gridLayout)
-        }
-
-        /////// Partie Deck
-
-        //Rempli les 6 Frame du deck
-        val deckFrameIds = intArrayOf(
-            R.id.carte1,
-            R.id.carte2,
-            R.id.carte3,
-            R.id.carte4,
-            R.id.carte5,
-            R.id.carte6
-        )
-
-        for (i in 0 until handize) {
-            val frameLayout = view.findViewById<FrameLayout>(deckFrameIds[i])
-
-            // Ajoutez un ImageView à chaque conteneur avec l'icône correspondante
-            val imageView = ImageView(requireContext())
-            imageView.setImageResource(iconResIds[i])
-
-            // Définissez la taille des ImageView ici (par exemple, 48dp x 48dp)
-            val imageSize = resources.getDimensionPixelSize(R.dimen.icon_size)
-            imageView.layoutParams = ViewGroup.LayoutParams(imageSize, imageSize)
-
-            frameLayout.addView(imageView)
+            fillCollection(database, view, R.id.recyclerModification , modifcationFragment = modificationFragment)
+            fillDeckView()
         }
 
         return view
     }
+
+    suspend fun fillDeckView() {
+
+        val deckId = database.dao().getIdFromFirstDeck()
+
+        // Récupére les ids
+
+
+        //Récupére le deck de 6 cartes
+        val cards = database.dao().getCardsInDeck(deckId)
+
+        // Trier la liste des cartes
+        Collections.sort(cards, CardComparator())
+
+        for (i in cards.indices) {
+            createFragmentForLayout(deckFrameIds[i], deckId, cards[i])
+        }
+
+    }
+
+    private fun createFragmentForLayout(idView : Int, deckId : Int, cardEntity: CardEntity) {
+        val layout : FrameLayout = view.findViewById(idView)
+
+        val carteFragment = CardFragmentManager.setCardFrame(supportFragmentManager = parentFragmentManager,
+            idView, cardEntity.toCard())
+
+        listFragments.add(carteFragment)
+
+        // Add click
+        layout.setOnClickListener {
+            GlobalScope.launch {
+                // On retire la carte du deck,
+                database.dao().deleteCardInDeck(deckId, carteFragment.getCard().id)
+
+                refreshDeck()
+                refreshCollection() // On met à jour l'affichage de la collection
+            }
+        }
+    }
+
+    suspend fun refreshDeck() {
+        // Retire de l'affichage toutes les vues puis les remets
+        for (fragment in listFragments) {
+            fragment.setAlpha(0f)
+        }
+
+        val deckId = database.dao().getIdFromFirstDeck()
+
+        //Récupére le deck de 6 cartes
+        val cards = database.dao().getCardsInDeck(deckId)
+
+        // Trier la liste des cartes
+        Collections.sort(cards, CardComparator())
+
+        for (i in cards.indices) {
+            if (i < listFragments.size) {
+                listFragments[i].setCard(cards[i].toCard())
+            }
+            else { // On dois créer la vue
+                createFragmentForLayout(deckFrameIds[i], deckId, cards[i])
+            }
+        }
+    }
+
 }
 

@@ -4,36 +4,50 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.GridLayout
+import androidx.core.view.children
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.room.RoomDatabase
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.picturetocard.R
+import com.example.picturetocard.database.CardComparator
 import com.example.picturetocard.database.CardDatabase
+import com.example.picturetocard.database.CardEntity
+import com.example.picturetocard.ui.game.CarteFragment
+import com.example.picturetocard.ui.modification.ModificationFragment
+import java.util.Collections
 
-class CollectionManager {
 
-    companion object {
+open class CollectionManager : Fragment() {
 
-        suspend fun fillCollection(database: CardDatabase, context: Context, fragmentManager: FragmentManager, gridLayout: GridLayout) {
+    lateinit var recyclerView: RecyclerView
 
-            val cards = database.dao().getAllEntities()
+    suspend fun fillCollection(database: CardDatabase, view: View, idRecyclerView: Int,
+                               modifcationFragment : ModificationFragment? = null) {
+        recyclerView = view.findViewById(idRecyclerView)
 
-            //rempli le gridLayout
-            for (i in cards.indices) {
-                // Crée un containerId
-                val containerId = View.generateViewId()
-                // Crée un frame layout
-                val frameLayout = FrameLayout(context)
-                frameLayout.id = containerId
-                val params = GridLayout.LayoutParams()
-                params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                frameLayout.layoutParams = params
-                // Ajoute un cardFragment
-                CardFragmentManager.setCardFrame(supportFragmentManager = fragmentManager,
-                    containerId, cards[i].toCard())
+        val nbeColomn = if (modifcationFragment != null) 4 else 2
+        val layoutManager: RecyclerView.LayoutManager = GridLayoutManager(requireContext(), nbeColomn)
 
-                gridLayout.addView(frameLayout)
-            }
-        }
+        recyclerView.layoutManager = layoutManager
 
+        recyclerView.addItemDecoration(
+            MarginItemDecoration(6)
+        )
+
+        val cards = database.dao().getAllEntities()
+        val deckId = database.dao().getIdFromFirstDeck()
+
+        // Trier la liste des cartes
+        Collections.sort(cards, CardComparator())
+
+        val adapter = CardAdapter(cards, database, deckId, modifcationFragment)
+        recyclerView.adapter = adapter
     }
+
+
+    suspend fun refreshCollection() {
+        (recyclerView.adapter as CardAdapter).refresh()
+    }
+
 }

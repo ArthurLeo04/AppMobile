@@ -1,5 +1,6 @@
 package com.example.picturetocard.game
 
+import android.util.Log
 import com.example.picturetocard.database.CardDatabase
 import com.example.picturetocard.database.CardEntity
 import com.example.picturetocard.database.CardInDeckEntity
@@ -25,10 +26,16 @@ class Deck(
             database.dao().insertCard(CardEntity(3,9,""))
             database.dao().insertCard(CardEntity(4,0,""))
             database.dao().insertCard(CardEntity(5,1,""))
-            //database.dao().insertCard(CardEntity(6,2,""))
-            //database.dao().insertCard(CardEntity(7,3,""))
-            //database.dao().insertCard(CardEntity(0,4,""))
-            //database.dao().insertCard(CardEntity(1,5,""))
+            database.dao().insertCard(CardEntity(6,2,""))
+            database.dao().insertCard(CardEntity(7,3,""))
+            database.dao().insertCard(CardEntity(0,4,""))
+            database.dao().insertCard(CardEntity(1,5,""))
+            database.dao().insertCard(CardEntity(2,6,""))
+            database.dao().insertCard(CardEntity(3,7,""))
+            database.dao().insertCard(CardEntity(4,8,""))
+            database.dao().insertCard(CardEntity(5,9,""))
+            database.dao().insertCard(CardEntity(6,0,""))
+            database.dao().insertCard(CardEntity(7,1,""))
 
             // Crée une instance de deck
             database.dao().insertDeck(DeckEntity("Test"))

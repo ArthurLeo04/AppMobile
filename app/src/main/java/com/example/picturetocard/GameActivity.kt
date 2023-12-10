@@ -20,6 +20,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.picturetocard.PictureToCard
 import com.example.picturetocard.R
@@ -172,7 +173,7 @@ class GameActivity : AppCompatActivity() {
 
         }
         else {
-            val frameLayout = findViewById<FrameLayout>(R.id.pileDisplay)
+            val frameLayout = findViewById<ConstraintLayout>(R.id.pileDisplay)
             frameLayout.removeAllViews()
         }
     }

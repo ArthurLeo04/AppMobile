@@ -25,14 +25,23 @@ interface CardDAO { // Attention ! Ces fonctions doivent être lancés depuis un
     fun getIdFromFirstDeck() : Int
 
     @Query("SELECT cards.id, cards.Couleur, cards.Effet, cards.PathImage " +
-            "FROM cardsInDeck NATURAL JOIN cards WHERE cardsInDeck.deckId = :deckId")
+            "FROM cardsInDeck INNER JOIN cards ON cardsInDeck.cardId == cards.id WHERE cardsInDeck.deckId = :deckId")
     fun getCardsInDeck(deckId : Int) : List<CardEntity>
+
+    @Query("SELECT * FROM cardsInDeck")
+    fun getAllCardsInDeck() : List<CardInDeckEntity>
 
     @Query("SELECT * FROM cards WHERE id = :entityId")
     fun getEntityById(entityId: Int): CardEntity?
 
     @Query("SELECT * FROM cards WHERE id IN (:ids)")
     fun getEntitiesByIds(ids: Array<Int>): List<CardEntity>
+
+    @Query("DELETE FROM cardsInDeck WHERE cardId == :cardId AND deckId == :deckId")
+    fun deleteCardInDeck(deckId: Int, cardId: Int)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM cardsInDeck WHERE cardId == :cardId AND deckId == :deckId) AS element_present;")
+    fun isInDeck(deckId: Int, cardId: Int) : Boolean
 
     @Query("DELETE FROM cards")
     fun deleteAllCards()

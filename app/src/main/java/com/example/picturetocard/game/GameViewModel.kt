@@ -261,6 +261,7 @@ class GameManager(
 
         // Remettre le score à 0
         score = 0
+        progressMatch = 0
 
         // Redonner le power up au joueurs
         playerUsedPowerUp = false
