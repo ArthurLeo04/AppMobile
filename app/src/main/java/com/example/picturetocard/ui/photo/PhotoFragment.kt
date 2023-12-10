@@ -7,6 +7,7 @@ import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -170,7 +171,7 @@ class PhotoFragment : Fragment() {
                 transaction.setReorderingAllowed(true)
                 transaction.commitAllowingStateLoss()
 
-                showBottomAlertDialog(parentFragmentManager, carteFragment!!, image)
+                showBottomAlertDialog(parentFragmentManager, carteFragment!!, image,null)
 
             }
         })
@@ -182,13 +183,33 @@ class PhotoFragment : Fragment() {
                 val data: Intent? = result.data
                 val imageUri: Uri? = data?.data
                 if (imageUri != null) {
+                    // Obtenir le chemin du fichier à partir de l'URI
+                    val imagePath = getImagePath(imageUri)
+
+                    // Utilisez le chemin du fichier ici
+                    Log.d("TAG", "Chemin de l'image : $imagePath")
+
+                    // Utilisez l'image si nécessaire
                     val imageStream = requireContext().contentResolver.openInputStream(imageUri)
                     val image = BitmapFactory.decodeStream(imageStream)
-                    Log.d("TAG", "bon on prend la photo")
-                    afficherGalleryCarte(image, null)
+                    afficherGalleryCarte(image, imagePath)
                 }
             }
         }
+
+    private fun getImagePath(uri: Uri): String? {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor: Cursor? = requireContext().contentResolver.query(uri, projection, null, null, null)
+
+        cursor?.use {
+            val columnIndex: Int = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            it.moveToFirst()
+            return it.getString(columnIndex)
+        }
+
+        return null
+    }
+
 
     private fun afficherGalleryCarte(image: Bitmap, imagePath: String?){
         extractColors(image, object : ColorExtractionCallback {
@@ -200,6 +221,7 @@ class PhotoFragment : Fragment() {
                 }
                 Log.d("TAG", "Couleur dominante l143 : $color1")
                 Log.d("TAG", "Couleur secondaire : $color2")
+                Log.d("TAG", "imagePath : $imagePath")
                 carteFragment = if (color1.ordinal == color2.ordinal){
                     getCarteFragment(correctedImage, color1, Effets.PLUS_UN)
                 } else {
@@ -212,7 +234,7 @@ class PhotoFragment : Fragment() {
                 transaction.setReorderingAllowed(true)
                 transaction.commitAllowingStateLoss()
 
-                showBottomAlertDialog(parentFragmentManager, carteFragment!!,null)
+                showBottomAlertDialog(parentFragmentManager, carteFragment!!,null,imagePath)
 
             }
         })
@@ -363,12 +385,13 @@ class PhotoFragment : Fragment() {
         Log.d("TAG", "Couleur dominante l272 : $color1, Couleur secondaire : $color2")
     }
 
-    fun showBottomAlertDialog(fragmentManager: FragmentManager, carteFragment: CarteFragment, image: Bitmap?) {
+    fun showBottomAlertDialog(fragmentManager: FragmentManager, carteFragment: CarteFragment, image: Bitmap?,imagePath: String?) {
         val builder = AlertDialog.Builder(requireContext(), R.style.BottomAlertDialogTheme)
+
         builder.setMessage("Voulez-vous ajouter cette carte à la base de données?")
             .setPositiveButton("Oui") { _, _ ->
                 GlobalScope.launch {
-                    addToDatabase(carteFragment, image)
+                    addToDatabase(carteFragment, image, imagePath)
                 }
                 clearCardFromFrameLayout(carteFragment)
             }
@@ -376,6 +399,7 @@ class PhotoFragment : Fragment() {
                 clearCardFromFrameLayout(carteFragment)
                 dialog.dismiss()
             }
+
         val dialog = builder.create()
 
         // Ajustez la gravité pour afficher la boîte de dialogue en bas
@@ -384,19 +408,24 @@ class PhotoFragment : Fragment() {
         layoutParams?.gravity = Gravity.BOTTOM
         window?.attributes = layoutParams
 
+        dialog.setCanceledOnTouchOutside(false)
+
         dialog.show()
     }
 
 
 
-    suspend fun addToDatabase(carteFragment: CarteFragment, image: Bitmap?) {
+
+
+
+    suspend fun addToDatabase(carteFragment: CarteFragment, image: Bitmap?,imagePath: String?) {
         val card = carteFragment.getCard()
 
         // Save the image to the device
         val savedImageUri = if (image != null) {
             saveImageToGallery(image)
         } else {
-            carteFragment.getCard().imageBitmap
+            imagePath ?: ""
         }
 
         // Récupérer l'instance de l'application
@@ -411,15 +440,16 @@ class PhotoFragment : Fragment() {
             CardEntity(
                 color = card.color.ordinal,
                 effet = card.effet.ordinal,
-                imagePath = savedImageUri.toString()
+                imagePath = savedImageUri
             )
         )
 
         val cards = cardDao.getAllEntities()
         Log.d("TAG", "Cartes dans la BD : ${cards.size}")
+        Log.d("TAG", "Carte ajoutée : ${card.color}, ${card.effet}, ${savedImageUri.toString()}")
     }
 
-    private fun saveImageToGallery(image: Bitmap): Uri {
+    private fun saveImageToGallery(image: Bitmap): String {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "JPEG_$timeStamp.jpg"
 
@@ -437,7 +467,10 @@ class PhotoFragment : Fragment() {
         image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         outputStream?.close()
 
-        return imageUri
+        // Retrieve the file path from the URI
+        val filePath = getImagePath(imageUri)
+
+        return filePath ?: ""
     }
 
 
