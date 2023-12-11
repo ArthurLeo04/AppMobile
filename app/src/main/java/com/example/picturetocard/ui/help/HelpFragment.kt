@@ -25,11 +25,6 @@ class HelpFragment() : Fragment() {
         val root: View = binding.root
 
 
-        binding.helpButton2.setOnClickListener {
-            val tableTypeDialog = TableTypeDialog(requireContext())
-            tableTypeDialog.show()
-        }
-
         return root
     }
 
